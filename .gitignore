@@ -1,0 +1,15 @@
+build/
+bin/
+lib/
+
+.vscode/
+.cache/
+
+*.exe
+*.o
+*.a
+*.dll
+
+.DS_Store
+Thumbs.db
+Fases.txt

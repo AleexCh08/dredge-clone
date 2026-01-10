@@ -1,8 +1,14 @@
 #include "raylib.h"
 #include "entities/Boat.h"
 #include "core/GameCamera.h"
+#include "core/FishingMinigame.h"
 #include "core/World.h"
 #include <raymath.h>
+
+enum GameState {
+    STATE_NAVIGATING,
+    STATE_FISHING
+};
 
 int main() {
     SetConfigFlags(FLAG_VSYNC_HINT);
@@ -15,17 +21,37 @@ int main() {
     GameCamera gameCamera;
     World gameWorld;
     gameWorld.Init();
+    FishingMinigame minigame;
+    GameState currentState = STATE_NAVIGATING;
 
     while (!WindowShouldClose()) {
         float deltaTime = GetFrameTime();
         float time = GetTime();
 
         // --- LOGICA ---
-        playerBoat.Update();
+        switch (currentState) {
+            case STATE_NAVIGATING:
+            {
+                playerBoat.Update(true);
+                FishingSpot* spot = gameWorld.GetNearbySpot(playerBoat.getPosition());
+                if (spot != nullptr && IsKeyPressed(KEY_E)) {
+                    currentState = STATE_FISHING;
+                    minigame.Start(); 
+                }
+            } break;
+
+            case STATE_FISHING:
+            {
+                playerBoat.Update(false);
+                minigame.Update();
+                if (!minigame.IsActive()) {
+                    currentState = STATE_NAVIGATING;
+                }
+            } break;
+        }
+        
         gameCamera.Update(playerBoat.getPosition());
         gameWorld.Update(deltaTime, time, playerBoat.getPosition());
-
-        FishingSpot* currentSpot = gameWorld.GetNearbySpot(playerBoat.getPosition());
 
         // --- DIBUJADO ---
         BeginDrawing();
@@ -40,13 +66,12 @@ int main() {
 
             DrawFPS(10, 10);
             
-            if (currentSpot != nullptr) {
-                DrawText("PRESIONA [E] PARA PESCAR", 
-                         GetScreenWidth()/2 - 150, // Centrado horizontal
-                         GetScreenHeight() - 100,  // Abajo
-                         20, WHITE);
-                         
-                DrawText("Zona de Pesca Detectada", 10, 60, 20, GREEN);
+            if (currentState == STATE_NAVIGATING) {
+                 FishingSpot* spot = gameWorld.GetNearbySpot(playerBoat.getPosition());
+                 if (spot) DrawText("E - PESCAR", 600, 600, 20, WHITE);
+            }
+            else if (currentState == STATE_FISHING) {
+                minigame.Draw();
             }
 
         EndDrawing();

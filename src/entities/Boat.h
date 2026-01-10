@@ -14,7 +14,7 @@ struct WakeParticle {
 class Boat {
 public:
     Boat(); // Constructor
-    void Update(); // Lógica (Input, Física)
+    void Update(bool inputEnabled); // Lógica (Input, Física)
     void Draw();   // Dibujado
 
     Vector3 getPosition(); // Para que la cámara nos pueda seguir

@@ -34,38 +34,46 @@ void Boat::CheckMapBounds() {
     }
 }
 
-void Boat::Update() {
+void Boat::Update(bool inputEnabled) {
     // 1. INPUT DEL USUARIO
     // Rotación (A / D) CON INERCIA
-    if (IsKeyDown(KEY_A)) {
-        currentTurnSpeed += TURN_ACCEL * GetFrameTime();
-    } else if (IsKeyDown(KEY_D)) {
-        currentTurnSpeed -= TURN_ACCEL * GetFrameTime();
-    } else {
-        // Si no tocas nada, la velocidad de giro decae suavemente
-        currentTurnSpeed *= TURN_DECAY;
-    }
+    if(inputEnabled) {
+        if (IsKeyDown(KEY_A)) {
+            currentTurnSpeed += TURN_ACCEL * GetFrameTime();
+        } else if (IsKeyDown(KEY_D)) {
+            currentTurnSpeed -= TURN_ACCEL * GetFrameTime();
+        } else {
+            // Si no tocas nada, la velocidad de giro decae suavemente
+            currentTurnSpeed *= TURN_DECAY;
+        }
 
+        // Aplicar el giro a la rotación real
+        rotation += currentTurnSpeed * GetFrameTime();
+        
+        // Aceleración (W / S)
+        if (IsKeyDown(KEY_W)) {
+            speed += ACCELERATION * GetFrameTime();
+        } else if (IsKeyDown(KEY_S)) {
+            speed -= ACCELERATION * GetFrameTime();
+        } else {
+            speed *= FRICTION;
+        }
+
+        // Calculamos el Target Tilt
+        targetTilt = 0.0f;
+        if (IsKeyDown(KEY_A)) targetTilt = 15.0f;  // Girar izq -> Inclinarse der
+        if (IsKeyDown(KEY_D)) targetTilt = -15.0f; // Girar der -> Inclinarse izq
+    } else {
+        // SI NO HAY INPUT (Pescando):
+        // Frenamos el giro y la velocidad suavemente (Inercia)
+        currentTurnSpeed *= TURN_DECAY;
+        speed *= FRICTION;
+        targetTilt = 0.0f;
+    }
+    
     // Limitar la velocidad de giro máxima (Clamp)
     if (currentTurnSpeed > MAX_TURN_SPEED) currentTurnSpeed = MAX_TURN_SPEED;
     if (currentTurnSpeed < -MAX_TURN_SPEED) currentTurnSpeed = -MAX_TURN_SPEED;
-
-    // Aplicar el giro a la rotación real
-    rotation += currentTurnSpeed * GetFrameTime();
-    // Calculamos el Target Tilt
-    targetTilt = 0.0f;
-    if (IsKeyDown(KEY_A)) targetTilt = 15.0f;  // Girar izq -> Inclinarse der
-    if (IsKeyDown(KEY_D)) targetTilt = -15.0f; // Girar der -> Inclinarse izq
-
-    // Aceleración (W / S)
-    if (IsKeyDown(KEY_W)) {
-        speed += ACCELERATION * GetFrameTime();
-    } else if (IsKeyDown(KEY_S)) {
-        speed -= ACCELERATION * GetFrameTime();
-    } else {
-        // Fricción del agua (frena suavemente si no tocas nada)
-        speed *= FRICTION;
-    }
 
     // 1. Suavizar el balanceo lateral (Lerp)
     float tiltSpeed = 2.0f * GetFrameTime();

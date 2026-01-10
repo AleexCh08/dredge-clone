@@ -9,12 +9,11 @@ FishingMinigame::FishingMinigame() {
 
 void FishingMinigame::Start() {
     active = true;
-    rotationAngle = 0.0f;
+    lastResult = false;
     
-    // Configuramos una zona verde aleatoria
-    // Ejemplo: Entre el grado 90 y el 270
+    rotationAngle = 0.0f;  
     targetStartAngle = (float)GetRandomValue(90, 270); 
-    targetSize = 40.0f; // Tamaño de la zona de éxito
+    targetSize = 40.0f; 
 }
 
 void FishingMinigame::Update() {
@@ -22,14 +21,25 @@ void FishingMinigame::Update() {
 
     // Girar la aguja
     rotationAngle += rotationSpeed * GetFrameTime();
-    
-    // Si da la vuelta completa (360), reseteamos a 0
     if (rotationAngle >= 360.0f) {
         rotationAngle -= 360.0f;
     }
 
+    if (IsKeyPressed(KEY_SPACE)) {
+        // Chequear si la aguja está dentro del arco verde
+        if (rotationAngle >= targetStartAngle && 
+            rotationAngle <= (targetStartAngle + targetSize)) {
+            
+            lastResult = true; 
+        } else {
+            lastResult = false; 
+        }
+        active = false;
+    }
+
     // Input: Salir con Escape (Cancelar pesca)
     if (IsKeyPressed(KEY_ESCAPE)) {
+        lastResult = false;
         active = false;
     }
 }
@@ -48,7 +58,6 @@ void FishingMinigame::Draw() {
     DrawRing(center, radius - 10, radius, 0, 360, 0, Fade(LIGHTGRAY, 0.5f));
 
     // 3. La Zona de Éxito (Verde)
-    // DrawRing usa ángulos en sentido antihorario a veces, ajustamos coordenadas
     DrawRing(center, radius - 15, radius + 5, targetStartAngle, targetStartAngle + targetSize, 0, GREEN);
 
     // 4. La Aguja (Línea Roja que gira)
@@ -57,8 +66,6 @@ void FishingMinigame::Draw() {
     Vector2 needleEnd;
     
     // Ajuste matemático: Raylib dibuja 0 grados a la derecha (Eje X), 
-    // pero queremos que gire en sentido horario o antihorario consistente.
-    // Usamos sin/cos básicos.
     needleEnd.x = center.x + cos(rad) * (radius - 5);
     needleEnd.y = center.y + sin(rad) * (radius - 5);
 

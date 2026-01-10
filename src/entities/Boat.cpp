@@ -13,6 +13,7 @@ Boat::Boat() {
     targetTilt = 0.0f;
     pitchAngle = 0.0f;
     currentTurnSpeed = 0.0f;
+    fishCount = 0;
 }
 
 void Boat::CheckMapBounds() {

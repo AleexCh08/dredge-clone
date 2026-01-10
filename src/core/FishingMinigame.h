@@ -16,9 +16,12 @@ public:
 
     // Getters para saber el resultado (luego los usaremos)
     bool IsActive() { return active; }
+    bool DidWin() { return lastResult; }
 
 private:
     bool active;
+    bool lastResult;
+    
     float rotationAngle; // Dónde está la aguja (0 a 360)
     float rotationSpeed; // Qué tan rápido gira
     

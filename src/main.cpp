@@ -48,8 +48,14 @@ int main() {
             {
                 playerBoat.Update(false);
                 minigame.Update();
+
                 if (!minigame.IsActive()) {
                     currentState = STATE_NAVIGATING;
+                    if (minigame.DidWin()) {
+                        playerBoat.AddFish();
+                        FishingSpot* spot = gameWorld.GetNearbySpot(playerBoat.getPosition());
+                        if (spot) spot->Deactivate(); // Desactivamos el spot
+                    }
                 }
             } break;
         }
@@ -77,6 +83,7 @@ int main() {
             else if (currentState == STATE_FISHING) {
                 minigame.Draw();
             }
+            DrawText(TextFormat("PECES: %d", playerBoat.GetFishCount()), 100, 10, 30, GOLD);
 
         EndDrawing();
     }

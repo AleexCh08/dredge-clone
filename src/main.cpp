@@ -13,6 +13,7 @@ enum GameState {
 int main() {
     SetConfigFlags(FLAG_VSYNC_HINT);
     InitWindow(1440, 900, "Dredge Clone - Phase 1 Refactor"); 
+    SetExitKey(KEY_NULL);
     DisableCursor(); 
     ToggleFullscreen();
     SetTargetFPS(60);
@@ -37,6 +38,9 @@ int main() {
                 if (spot != nullptr && IsKeyPressed(KEY_E)) {
                     currentState = STATE_FISHING;
                     minigame.Start(); 
+                }
+                if (IsKeyPressed(KEY_ESCAPE)) {
+                    CloseWindow(); 
                 }
             } break;
 

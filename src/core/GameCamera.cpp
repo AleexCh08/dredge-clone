@@ -45,6 +45,8 @@ void GameCamera::Update(Vector3 targetPosition) {
     // 3. INPUT ROTACIÓN (MOUSE)
     float mouseDelta = GetMouseDelta().x;
     angle -= mouseDelta * 0.005f;
+    if (angle > 2.0f * PI) angle -= 2.0f * PI;
+    if (angle < 0.0f) angle += 2.0f * PI;
 
     // 4. CALCULAR POSICIÓN (Usamos zoomLevel, que ya está suavizado)
     float currentHeight = Lerp(MIN_HEIGHT, MAX_HEIGHT, zoomLevel);

@@ -47,7 +47,8 @@ int main() {
                 if (IsKeyPressed(KEY_I)) { // Inventario
                     currentState = STATE_INVENTORY;
                     playerBoat.GetInventory()->Toggle();
-                    DisableCursor(); 
+                    EnableCursor(); 
+                    HideCursor(); 
                 }
                 if (IsKeyPressed(KEY_ESCAPE)) { // Salir del juego
                     CloseWindow(); 
@@ -79,8 +80,7 @@ int main() {
                 if (IsKeyPressed(KEY_I) || IsKeyPressed(KEY_ESCAPE)) {
                     currentState = STATE_NAVIGATING;
                     playerBoat.GetInventory()->Toggle(); 
-                    EnableCursor();
-                    HideCursor();
+                    DisableCursor();
                 }
             } break;
         }

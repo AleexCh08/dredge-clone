@@ -3,6 +3,7 @@
 
 #include "raylib.h"
 #include "core/Inventory.h"
+#include "FishingSpot.h"
 #include <deque>
 
 // Estructura pequeña para cada "pedazo" de espuma
@@ -18,7 +19,7 @@ public:
     void Update(bool inputEnabled); // Lógica (Input, Física)
     void Draw(); 
 
-    void AddFish();
+    bool CaptureFish(const FishType& fish);
     void FailFishing();
 
     int GetFishCount() { return fishCount; }

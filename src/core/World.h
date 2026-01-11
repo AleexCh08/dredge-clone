@@ -4,6 +4,7 @@
 #include "raylib.h"
 #include <vector>
 #include "../entities/FishingSpot.h"
+#include "../entities/Port.h"
 
 struct WaterConstants {
     static constexpr float frequency = 2.0f;
@@ -21,17 +22,20 @@ public:
     void Draw(Vector3 playerPos); 
     void DrawSky();
     void Unload(); // Limpieza manual si se requiere
-
+    
+    Port* GetPort() { return &homePort; }
     FishingSpot* GetNearbySpot(Vector3 playerPos);
 
 private:
     Model waterModel;
     Shader waterShader;
+    Port homePort;
+
     int timeLoc; // Ubicación de la variable 'time' en el shader
     int freqLoc;
     int ampLoc;
     int speedLoc;
-    std::vector<FishingSpot> fishingSpots; // Lista de puntos de pesca
+    std::vector<FishingSpot> fishingSpots; // Lista de puntos de pesca  
 };
 
 #endif

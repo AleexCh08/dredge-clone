@@ -3,7 +3,7 @@
 #include "rlgl.h"
 #include <cmath> 
 
-World::World() {
+World::World() : homePort((Vector3){-40.0f, 0.0f, -40.0f}) {
     waterModel = { 0 };
     waterShader = { 0 };
     timeLoc = 0;
@@ -48,6 +48,9 @@ void World::Update(float deltaTime, float time, Vector3 playerPosition) {
 }
 
 void World::Draw(Vector3 playerPos) {
+    // Dibujar puerto
+    homePort.Draw();
+
     // Dibujar Montañas (Límites)
     int numMountains = 30;
     float mapRadius = 95.0f;

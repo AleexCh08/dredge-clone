@@ -3,6 +3,7 @@
 
 #include "raylib.h"
 #include <vector>
+#include <string>
 
 struct VisualFish {
     float angle;      // En qué punto del círculo está
@@ -11,6 +12,14 @@ struct VisualFish {
     float depth;      // Profundidad (Y negativo)
     float scale;      // Tamaño del pez
     Color color;
+};
+
+struct FishType {
+    std::string name;
+    int width;
+    int height;
+    Color color;
+    int price;
 };
 
 class FishingSpot {
@@ -25,6 +34,8 @@ public:
     Vector3 GetPosition() const { return position; }
     void Deactivate() { active = false; }
 
+    FishType GetFishType() const { return currentFish; }
+
 private:
     Vector3 position;
     bool active;       // ¿Quedan peces?
@@ -32,6 +43,7 @@ private:
     float bubbleTimer; // Para animación simple
 
     std::vector<VisualFish> fishes;
+    FishType currentFish;
 };
 
 #endif

@@ -22,15 +22,31 @@ Boat::Boat() {
     feedbackColor = WHITE;
 }
 
-void Boat::AddFish() {
-    fishCount++;
-    
-    showFeedback = true;
-    feedbackTimer = 2.0f; // El mensaje dura 2 segundos
-    feedbackText = "+1 PEZ";
-    feedbackPos = position; // Empieza en el barco
-    feedbackPos.y += 2.0f;  // Un poco arriba
-    feedbackColor = GOLD;
+// Reemplaza el antiguo AddFish por este:
+bool Boat::CaptureFish(const FishType& fish) {
+    bool added = inventory.AddItem(fish.name.c_str(), fish.width, fish.height, fish.color);
+
+    if (added) {
+        fishCount++;
+        showFeedback = true;
+        feedbackTimer = 2.0f;
+        
+        feedbackText = "¡ATRAPADO!"; 
+        feedbackPos = position;
+        feedbackPos.y += 2.0f;
+        feedbackColor = GOLD;
+        
+        return true;
+    } else {
+        showFeedback = true;
+        feedbackTimer = 2.0f;
+        feedbackText = "¡SIN ESPACIO!";
+        feedbackPos = position;
+        feedbackPos.y += 2.0f;
+        feedbackColor = RED;
+        
+        return false;
+    }
 }
 
 void Boat::StartFishing(Vector3 targetPos) {

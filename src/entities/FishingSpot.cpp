@@ -24,6 +24,13 @@ FishingSpot::FishingSpot(Vector3 pos) {
 
         fishes.push_back(f);
     }
+
+    // Peces de prueba
+    currentFish.name = "Bacalao";
+    currentFish.width = 2;
+    currentFish.height = 1; 
+    currentFish.color = ORANGE;
+    currentFish.price = 15;
 }
 
 bool FishingSpot::IsPlayerInside(Vector3 playerPos) {

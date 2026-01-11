@@ -64,9 +64,13 @@ int main() {
                     currentState = STATE_NAVIGATING;
                     playerBoat.StopFishing();
                     if (minigame.DidWin()) {
-                        playerBoat.AddFish();
                         FishingSpot* spot = gameWorld.GetNearbySpot(playerBoat.getPosition());
-                        if (spot) spot->Deactivate(); 
+                        if (spot) {
+                            bool success = playerBoat.CaptureFish(spot->GetFishType());
+                            if (success) {
+                                spot->Deactivate();
+                            }
+                        } 
                     } else {
                         playerBoat.FailFishing(); 
                     }
@@ -105,8 +109,11 @@ int main() {
             playerBoat.DrawUI(gameCamera.getCamera());
             
             if (currentState == STATE_NAVIGATING) {
-                 FishingSpot* spot = gameWorld.GetNearbySpot(playerBoat.getPosition());
-                 if (spot) DrawText("E - PESCAR", 600, 600, 20, WHITE);
+                FishingSpot* spot = gameWorld.GetNearbySpot(playerBoat.getPosition());
+                if (spot) DrawText("E - PESCAR", 600, 600, 20, WHITE);
+                if (gameWorld.GetPort()->IsPlayerInside(playerBoat.getPosition())) { // Detectar puerto
+                    DrawText("ESTAS EN EL PUERTO", 400, 100, 20, GREEN);
+                }
             }
             else if (currentState == STATE_FISHING) {
                 minigame.Draw();

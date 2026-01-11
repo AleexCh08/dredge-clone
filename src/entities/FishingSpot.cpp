@@ -44,7 +44,7 @@ void FishingSpot::Draw(Vector3 playerPos) {
     // --- 1. DIBUJAR BURBUJAS (Igual que antes) ---
     bubbleTimer += GetFrameTime();
     float yOffset = sin(bubbleTimer * 3.0f) * 0.2f;
-    DrawCylinder((Vector3){position.x, 0.0f + yOffset, position.z}, 1.5f, 1.5f, 0.5f, 8, Fade(WHITE, 0.5f));
+    DrawCylinder((Vector3){position.x, 0.0f + yOffset, position.z}, 1.5f, 1.5f, 0.15f, 8, Fade(WHITE, 0.25f));
     DrawCylinderWires((Vector3){position.x, 0.0f, position.z}, radius, radius, 1.0f, 16, Fade(SKYBLUE, 0.3f));
 
     // --- 2. DIBUJAR PECES CON PROFUNDIDAD ---
@@ -59,9 +59,6 @@ void FishingSpot::Draw(Vector3 playerPos) {
         // B. CALCULAR DISTANCIA Y VISIBILIDAD (NUEVO)
         float distToPlayer = Vector3Distance(fishPos, playerPos);
         
-        // Lógica de Niebla:
-        // - Si está a menos de 15 metros: Visibilidad máxima (pero no 1.0 para que se vea sumergido)
-        // - Si está a más de 40 metros: Visibilidad 0.0 (Invisible)
         float visibility = Remap(distToPlayer, 15.0f, 40.0f, 0.8f, 0.0f);
         
         // Clamp (Asegurar que esté entre 0 y 1)

@@ -14,6 +14,42 @@ Boat::Boat() {
     pitchAngle = 0.0f;
     currentTurnSpeed = 0.0f;
     fishCount = 0;
+    showFeedback = false;
+    feedbackTimer = 0.0f;
+    feedbackText = "";
+    isFishingLineActive = false;
+    fishingLineTarget = {0,0,0};
+    feedbackColor = WHITE;
+}
+
+void Boat::AddFish() {
+    fishCount++;
+    
+    showFeedback = true;
+    feedbackTimer = 2.0f; // El mensaje dura 2 segundos
+    feedbackText = "+1 PEZ";
+    feedbackPos = position; // Empieza en el barco
+    feedbackPos.y += 2.0f;  // Un poco arriba
+    feedbackColor = GOLD;
+}
+
+void Boat::StartFishing(Vector3 targetPos) {
+    isFishingLineActive = true;
+    fishingLineTarget = targetPos;
+}
+
+void Boat::StopFishing() {
+    isFishingLineActive = false;
+}
+
+void Boat::FailFishing() {
+    // Feedback negativo
+    showFeedback = true;
+    feedbackTimer = 2.0f;
+    feedbackText = "¡SE ESCAPÓ!";
+    feedbackPos = position;
+    feedbackPos.y += 2.0f;
+    feedbackColor = RED; // Color de error
 }
 
 void Boat::CheckMapBounds() {
@@ -130,6 +166,16 @@ void Boat::Update(bool inputEnabled) {
     if (!wakeTrail.empty() && wakeTrail.front().alpha <= 0) {
         wakeTrail.pop_front();
     }
+
+    // Feedback de pesca
+    if (showFeedback) {
+        feedbackTimer -= GetFrameTime();
+        feedbackPos.y += 1.0f * GetFrameTime(); // El texto sube flotando
+        
+        if (feedbackTimer <= 0) {
+            showFeedback = false;
+        }
+    }
 }
 
 void Boat::Draw() {
@@ -152,7 +198,6 @@ void Boat::Draw() {
     }
 
     // Dibujar el cuerpo del barco
-    // PushMatrix guarda el estado actual para que rotar el barco no rote todo el mundo
     rlPushMatrix();
         rlTranslatef(position.x, position.y, position.z);
         rlRotatef(rotation, 0, 1, 0); // Rotar sobre el eje Y
@@ -165,6 +210,31 @@ void Boat::Draw() {
         DrawCube((Vector3){0, 1.0f, 0.5f}, 0.8f, 0.8f, 0.8f, DARKGRAY);
 
     rlPopMatrix();
+
+    // --- DIBUJAR SEDAL Y BOYA ---
+    if (isFishingLineActive) {
+        Vector3 startLine = { position.x, position.y + 1.0f, position.z };
+        
+        float buoyBobbing = sin(GetTime() * 4.0f) * 0.2f;
+        Vector3 endLine = { fishingLineTarget.x, 0.0f + buoyBobbing, fishingLineTarget.z };
+
+        rlDrawRenderBatchActive();
+        rlDisableDepthTest();
+            DrawLine3D(startLine, endLine, BLACK);
+            DrawSphere(endLine, 0.3f, RED);
+            DrawSphere((Vector3){endLine.x, endLine.y + 0.3f, endLine.z}, 0.15f, WHITE);
+        rlEnableDepthTest();
+    }
+}
+
+void Boat::DrawUI(Camera3D camera) {
+    if (showFeedback) {
+        Vector2 screenPos = GetWorldToScreen(feedbackPos, camera);    
+        float alpha = feedbackTimer / 2.0f; 
+        if (alpha < 0) alpha = 0;
+        
+        DrawText(feedbackText, (int)screenPos.x, (int)screenPos.y, 20, Fade(feedbackColor, alpha));
+    }
 }
 
 Vector3 Boat::getPosition() {

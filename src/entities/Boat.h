@@ -15,10 +15,17 @@ class Boat {
 public:
     Boat(); // Constructor
     void Update(bool inputEnabled); // Lógica (Input, Física)
-    void Draw();   // Dibujado
-    void AddFish() { fishCount++; }
+    void Draw(); 
+
+    void AddFish();
+    void FailFishing();
+
     int GetFishCount() { return fishCount; }
 
+    void StartFishing(Vector3 targetPos); //  Activa el sedal
+    void StopFishing();
+
+    void DrawUI(Camera3D camera);
     Vector3 getPosition(); // Para que la cámara nos pueda seguir
 
 private:
@@ -43,7 +50,15 @@ private:
     float targetTilt;      // A dónde queremos inclinarnos
     float pitchAngle;      // Inclinación frontal (Pitch)
 
+    bool isFishingLineActive; // Sedal
+    Vector3 fishingLineTarget;
+    
     int fishCount;
+    bool showFeedback;
+    float feedbackTimer;
+    const char* feedbackText;
+    Vector3 feedbackPos;
+    Color feedbackColor;
 
     const float MAP_LIMIT = 90.0f; // El radio máximo donde puedes navegar
     void CheckMapBounds();

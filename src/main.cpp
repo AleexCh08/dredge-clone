@@ -37,7 +37,8 @@ int main() {
                 FishingSpot* spot = gameWorld.GetNearbySpot(playerBoat.getPosition());
                 if (spot != nullptr && IsKeyPressed(KEY_E)) {
                     currentState = STATE_FISHING;
-                    minigame.Start(); 
+                    minigame.Start();
+                    playerBoat.StartFishing(spot->GetPosition()); 
                 }
                 if (IsKeyPressed(KEY_ESCAPE)) {
                     CloseWindow(); 
@@ -51,10 +52,13 @@ int main() {
 
                 if (!minigame.IsActive()) {
                     currentState = STATE_NAVIGATING;
+                    playerBoat.StopFishing();
                     if (minigame.DidWin()) {
                         playerBoat.AddFish();
                         FishingSpot* spot = gameWorld.GetNearbySpot(playerBoat.getPosition());
                         if (spot) spot->Deactivate(); // Desactivamos el spot
+                    } else {
+                        playerBoat.FailFishing(); // Feedback Rojo
                     }
                 }
             } break;
@@ -71,10 +75,10 @@ int main() {
             BeginMode3D(gameCamera.getCamera());
                 gameWorld.Draw(playerBoat.getPosition());
                 playerBoat.Draw();                
-
             EndMode3D();
 
             DrawFPS(10, 10);
+            playerBoat.DrawUI(gameCamera.getCamera());
             
             if (currentState == STATE_NAVIGATING) {
                  FishingSpot* spot = gameWorld.GetNearbySpot(playerBoat.getPosition());

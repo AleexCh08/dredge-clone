@@ -168,3 +168,37 @@ void Inventory::RemoveItem(int index) {
 
     items.erase(items.begin() + index);
 }
+
+bool Inventory::TryRotateItem(int index) {
+    if (index < 0 || index >= items.size()) return false;
+
+    InventoryItem& item = items[index];
+
+    for (int i = 0; i < item.width; i++) {
+        for (int j = 0; j < item.height; j++) {
+            collisionGrid[item.gridX + i][item.gridY + j] = false;
+        }
+    }
+
+    int newW = item.height;
+    int newH = item.width;
+
+    if (CanPlaceItem(item.gridX, item.gridY, newW, newH)) {
+        item.width = newW;
+        item.height = newH;
+        
+        for (int i = 0; i < newW; i++) {
+            for (int j = 0; j < newH; j++) {
+                collisionGrid[item.gridX + i][item.gridY + j] = true;
+            }
+        }
+        return true;
+    } else {
+        for (int i = 0; i < item.width; i++) {
+            for (int j = 0; j < item.height; j++) {
+                collisionGrid[item.gridX + i][item.gridY + j] = true;
+            }
+        }
+        return false;
+    }
+}

@@ -37,6 +37,7 @@ public:
     int GetItemIndexUnderMouse(int offsetX, int offsetY);
     InventoryItem GetItem(int index);
     void RemoveItem(int index);
+    bool TryRotateItem(int index); // Rotar un objeto en el inventario
 
 private:
     bool isOpen;

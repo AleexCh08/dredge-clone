@@ -91,6 +91,12 @@ int main() {
                     playerBoat.GetInventory()->Toggle(); 
                     DisableCursor();
                 }
+                if (IsKeyPressed(KEY_R)) {
+                    int idx = playerBoat.GetInventory()->GetItemIndexUnderMouse(0, 0);
+                    if (idx != -1) {
+                        playerBoat.GetInventory()->TryRotateItem(idx);
+                    }
+                }
             } break;
 
             case STATE_DOCKED:
@@ -120,6 +126,14 @@ int main() {
                 int boatY = 200;
                 int portX = 800; 
                 int portY = 200;
+
+                if (IsKeyPressed(KEY_R)) {
+                    int idxBoat = boatInv->GetItemIndexUnderMouse(boatX, boatY);
+                    if (idxBoat != -1) boatInv->TryRotateItem(idxBoat);
+
+                    int idxPort = portInv->GetItemIndexUnderMouse(portX, portY);
+                    if (idxPort != -1) portInv->TryRotateItem(idxPort);
+                }
 
                 if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
                     int itemIdx = boatInv->GetItemIndexUnderMouse(boatX, boatY);

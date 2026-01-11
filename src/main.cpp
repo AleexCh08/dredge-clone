@@ -7,7 +7,8 @@
 
 enum GameState {
     STATE_NAVIGATING,
-    STATE_FISHING
+    STATE_FISHING,
+    STATE_INVENTORY
 };
 
 int main() {
@@ -25,6 +26,9 @@ int main() {
     FishingMinigame minigame;
     GameState currentState = STATE_NAVIGATING;
 
+    playerBoat.GetInventory()->AddItem("Motor V8", 2, 2, GRAY);
+    playerBoat.GetInventory()->AddItem("Bacalao", 1, 2, ORANGE);
+
     while (!WindowShouldClose()) {
         float deltaTime = GetFrameTime();
         float time = GetTime();
@@ -35,12 +39,17 @@ int main() {
             {
                 playerBoat.Update(true);
                 FishingSpot* spot = gameWorld.GetNearbySpot(playerBoat.getPosition());
-                if (spot != nullptr && IsKeyPressed(KEY_E)) {
+                if (spot != nullptr && IsKeyPressed(KEY_E)) { // Pescar
                     currentState = STATE_FISHING;
                     minigame.Start();
                     playerBoat.StartFishing(spot->GetPosition()); 
                 }
-                if (IsKeyPressed(KEY_ESCAPE)) {
+                if (IsKeyPressed(KEY_I)) { // Inventario
+                    currentState = STATE_INVENTORY;
+                    playerBoat.GetInventory()->Toggle();
+                    EnableCursor(); 
+                }
+                if (IsKeyPressed(KEY_ESCAPE)) { // Salir del juego
                     CloseWindow(); 
                 }
             } break;
@@ -56,10 +65,21 @@ int main() {
                     if (minigame.DidWin()) {
                         playerBoat.AddFish();
                         FishingSpot* spot = gameWorld.GetNearbySpot(playerBoat.getPosition());
-                        if (spot) spot->Deactivate(); // Desactivamos el spot
+                        if (spot) spot->Deactivate(); 
                     } else {
-                        playerBoat.FailFishing(); // Feedback Rojo
+                        playerBoat.FailFishing(); 
                     }
+                }
+            } break;
+
+            case STATE_INVENTORY: 
+            {              
+                playerBoat.GetInventory()->Update();
+
+                if (IsKeyPressed(KEY_I) || IsKeyPressed(KEY_ESCAPE)) {
+                    currentState = STATE_NAVIGATING;
+                    playerBoat.GetInventory()->Toggle(); 
+                    DisableCursor();
                 }
             } break;
         }
@@ -78,6 +98,7 @@ int main() {
             EndMode3D();
 
             DrawFPS(10, 10);
+            DrawText(TextFormat("PECES: %d", playerBoat.GetFishCount()), 100, 10, 30, GOLD);
             playerBoat.DrawUI(gameCamera.getCamera());
             
             if (currentState == STATE_NAVIGATING) {
@@ -87,8 +108,11 @@ int main() {
             else if (currentState == STATE_FISHING) {
                 minigame.Draw();
             }
-            DrawText(TextFormat("PECES: %d", playerBoat.GetFishCount()), 100, 10, 30, GOLD);
-
+            else if (currentState == STATE_INVENTORY) {
+                DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, 0.5f));
+                playerBoat.GetInventory()->Draw(); 
+            }
+            
         EndDrawing();
     }
 

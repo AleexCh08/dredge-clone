@@ -72,7 +72,12 @@ void Boat::CheckMapBounds() {
 }
 
 void Boat::Update(bool inputEnabled) {
-    // 1. INPUT DEL USUARIO
+    /* Control del Inventario
+    if (IsKeyPressed(KEY_I)) {
+        inventory.Toggle();
+    }*/
+
+    // INPUT DEL USUARIO
     // Rotación (A / D) CON INERCIA
     if(inputEnabled) {
         if (IsKeyDown(KEY_A)) {
@@ -235,6 +240,8 @@ void Boat::DrawUI(Camera3D camera) {
         
         DrawText(feedbackText, (int)screenPos.x, (int)screenPos.y, 20, Fade(feedbackColor, alpha));
     }
+
+    inventory.Draw(); // Dibujar el inventario
 }
 
 Vector3 Boat::getPosition() {

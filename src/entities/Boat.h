@@ -2,6 +2,7 @@
 #define BOAT_H
 
 #include "raylib.h"
+#include "core/Inventory.h"
 #include <deque>
 
 // Estructura pequeña para cada "pedazo" de espuma
@@ -27,6 +28,8 @@ public:
 
     void DrawUI(Camera3D camera);
     Vector3 getPosition(); // Para que la cámara nos pueda seguir
+
+    Inventory* GetInventory() { return &inventory; } // Acceder al inventario
 
 private:
     Vector3 position;
@@ -59,6 +62,8 @@ private:
     const char* feedbackText;
     Vector3 feedbackPos;
     Color feedbackColor;
+
+    Inventory inventory; // Nuevo objeto inventario
 
     const float MAP_LIMIT = 90.0f; // El radio máximo donde puedes navegar
     void CheckMapBounds();

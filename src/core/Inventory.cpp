@@ -119,4 +119,12 @@ void Inventory::Draw() {
         // Nombre (recortado si es largo)
         DrawText(item.name.c_str(), itemX + 5, itemY + 5, 10, WHITE);
     }
+
+    // Dibujamos un cursor
+    Vector2 mousePos = GetMousePosition();   
+    Vector2 v1 = mousePos; 
+    Vector2 v2 = { mousePos.x, mousePos.y + 20 };
+    Vector2 v3 = { mousePos.x + 15, mousePos.y + 15 };
+    DrawTriangle(v1, v2, v3, WHITE);       
+    DrawTriangleLines(v1, v2, v3, BLACK);
 }

@@ -47,7 +47,7 @@ int main() {
                 if (IsKeyPressed(KEY_I)) { // Inventario
                     currentState = STATE_INVENTORY;
                     playerBoat.GetInventory()->Toggle();
-                    EnableCursor(); 
+                    DisableCursor(); 
                 }
                 if (IsKeyPressed(KEY_ESCAPE)) { // Salir del juego
                     CloseWindow(); 
@@ -79,12 +79,15 @@ int main() {
                 if (IsKeyPressed(KEY_I) || IsKeyPressed(KEY_ESCAPE)) {
                     currentState = STATE_NAVIGATING;
                     playerBoat.GetInventory()->Toggle(); 
-                    DisableCursor();
+                    EnableCursor();
+                    HideCursor();
                 }
             } break;
         }
         
-        gameCamera.Update(playerBoat.getPosition());
+        if (currentState != STATE_INVENTORY && currentState != STATE_FISHING) {
+            gameCamera.Update(playerBoat.getPosition());
+        }
         gameWorld.Update(deltaTime, time, playerBoat.getPosition());
 
         // --- DIBUJADO ---

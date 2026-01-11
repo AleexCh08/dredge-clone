@@ -1,31 +1,23 @@
 #include "GameRenderer.h"
 
-// Necesitamos definir los estados aquí o en un header común.
-// Para no romper nada, usaremos los valores literales del enum del main
-// (0=NAVIGATING, 1=FISHING, 2=INVENTORY, 3=DOCKED, 4=STORAGE)
-// Lo ideal es mover el enum a "GameConstants.h"
-
 GameRenderer::GameRenderer() { }
 
-void GameRenderer::Draw(int currentState, Boat& boat, World& world, GameCamera& camera, FishingMinigame& minigame) {
+void GameRenderer::Draw(GameState currentState, Boat& boat, World& world, GameCamera& camera, FishingMinigame& minigame) {
     BeginDrawing();
         ClearBackground(BLACK);
         world.DrawSky();
 
-        // 1. DIBUJAR MUNDO 3D
         Draw3DScene(boat, world, camera);
 
-        // 2. DIBUJAR UI GLOBAL
         DrawFPS(10, 10);
-        boat.DrawUI(camera.getCamera()); // Feedback flotante
+        boat.DrawUI(camera.getCamera());
 
-        // 3. DIBUJAR UI SEGÚN ESTADO
         switch (currentState) {
-            case 0: DrawUI_Navigating(boat, world); break; // STATE_NAVIGATING
-            case 1: DrawUI_Fishing(minigame); break;       // STATE_FISHING
-            case 2: DrawUI_Inventory(boat); break;         // STATE_INVENTORY
-            case 3: DrawUI_Docked(); break;                // STATE_DOCKED
-            case 4: DrawUI_Storage(boat, world); break;    // STATE_STORAGE
+            case STATE_NAVIGATING: DrawUI_Navigating(boat, world); break;
+            case STATE_FISHING:    DrawUI_Fishing(minigame); break;
+            case STATE_INVENTORY:  DrawUI_Inventory(boat); break;
+            case STATE_DOCKED:     DrawUI_Docked(); break;
+            case STATE_STORAGE:    DrawUI_Storage(boat, world); break;
         }
 
     EndDrawing();
@@ -57,7 +49,7 @@ void GameRenderer::DrawUI_Fishing(FishingMinigame& minigame) {
 void GameRenderer::DrawUI_Inventory(Boat& boat) {
     DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, 0.5f));
     boat.GetInventory()->Draw();
-    DrawCustomCursor(); // Agregamos cursor aquí también si queremos
+    DrawCustomCursor(); 
 }
 
 void GameRenderer::DrawUI_Docked() {

@@ -4,21 +4,14 @@
 #include "core/FishingMinigame.h"
 #include "core/World.h"
 #include "core/GameRenderer.h"
+#include "core/GameConstants.h"
 #include <raymath.h>
-
-enum GameState {
-    STATE_NAVIGATING,
-    STATE_FISHING,
-    STATE_INVENTORY,
-    STATE_DOCKED,
-    STATE_STORAGE
-};
 
 bool gameRunning = true;
 
 int main() {
     SetConfigFlags(FLAG_VSYNC_HINT);
-    InitWindow(1440, 900, "Dredge Clone - Phase 1 Refactor"); 
+    InitWindow(1440, 900, "Dredge Clone"); 
     SetExitKey(KEY_NULL);
     DisableCursor(); 
     ToggleFullscreen();
@@ -161,67 +154,8 @@ int main() {
         }
         gameWorld.Update(deltaTime, time, playerBoat.getPosition());
 
-        // --- DIBUJADO ---
-        renderer.Draw(currentState, playerBoat, gameWorld, gameCamera, minigame);
-
-        /*
-        BeginDrawing();
-            ClearBackground(BLACK);
-            gameWorld.DrawSky();
-
-            BeginMode3D(gameCamera.getCamera());
-                gameWorld.Draw(playerBoat.getPosition());
-                playerBoat.Draw();                
-            EndMode3D();
-
-            DrawFPS(10, 10);
-            playerBoat.DrawUI(gameCamera.getCamera());
-            
-            if (currentState == STATE_NAVIGATING) {
-                FishingSpot* spot = gameWorld.GetNearbySpot(playerBoat.getPosition());
-                if (spot) DrawText("E - PESCAR", 600, 600, 20, WHITE);
-                if (gameWorld.GetPort()->IsPlayerInside(playerBoat.getPosition())) { // Detectar puerto
-                    DrawText("ESTAS EN EL PUERTO", 600, 200, 20, GREEN);
-                }
-                if (gameWorld.GetPort()->IsPlayerInsideDock(playerBoat.getPosition())) { // Muelle
-                    DrawText("PRESIONA 'E' PARA ATRACAR", 500, 100, 20, WHITE);
-                }
-            }
-            else if (currentState == STATE_FISHING) {
-                minigame.Draw();
-            }
-            else if (currentState == STATE_INVENTORY) {
-                DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, 0.5f));
-                playerBoat.GetInventory()->Draw(); 
-            }
-            else if (currentState == STATE_DOCKED) {
-                DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, 0.8f));
-                DrawText("PUERTO - MUELLE PRINCIPAL", 450, 200, 40, WHITE);
-                
-                DrawText("1. ALMACEN (GUARDAR OBJETOS)", 500, 400, 20, WHITE);
-                DrawText("2. PESCADERO (CERRADO)", 500, 450, 20, GRAY);
-                DrawText("Q. SALPAR (SALIR)", 500, 600, 20, RED);
-
-                Vector2 mousePos = GetMousePosition();
-                DrawTriangle(mousePos, {mousePos.x, mousePos.y+20}, {mousePos.x+15, mousePos.y+15}, WHITE);
-            }
-            else if (currentState == STATE_STORAGE) {
-                DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, 0.85f));
-                
-                DrawText("CARGA DEL BARCO", 100, 150, 20, YELLOW);
-                DrawText("ALMACEN DEL PUERTO", 800, 150, 20, GREEN);
-
-                playerBoat.GetInventory()->Draw(100, 200); 
-                gameWorld.GetPort()->GetStorage()->Draw(800, 200);
-
-                DrawText("CLICK IZQUIERDO para transferir objetos", 450, 800, 20, LIGHTGRAY);
-                DrawText("TAB / ESC para Volver", 50, 50, 20, WHITE);
-
-                Vector2 mousePos = GetMousePosition();
-                DrawTriangle(mousePos, {mousePos.x, mousePos.y+20}, {mousePos.x+15, mousePos.y+15}, WHITE);
-            }
-            
-        EndDrawing();*/
+        // DIBUJADO
+        renderer.Draw(currentState, playerBoat, gameWorld, gameCamera, minigame);       
     }
 
     CloseWindow();

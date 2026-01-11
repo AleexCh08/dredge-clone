@@ -4,6 +4,7 @@
 #include "raylib.h"
 #include "core/Inventory.h"
 #include "FishingSpot.h"
+#include "Port.h"
 #include <deque>
 
 // Estructura pequeña para cada "pedazo" de espuma
@@ -26,7 +27,7 @@ public:
 
     void StartFishing(Vector3 targetPos); //  Activa el sedal
     void StopFishing();
-    void BounceBack(Vector3 direction);
+    void ResolvePortCollision(Port* port);
 
     void DrawUI(Camera3D camera);
     Vector3 getPosition(); // Para que la cámara nos pueda seguir
@@ -69,6 +70,7 @@ private:
 
     const float MAP_LIMIT = 90.0f; // El radio máximo donde puedes navegar
     void CheckMapBounds();
+    void BounceBack(Vector3 direction);
 };
 
 #endif

@@ -36,16 +36,9 @@ int main() {
         switch (currentState) {
             case STATE_NAVIGATING:
             {
-                playerBoat.Update(true);
-                Port* port = gameWorld.GetPort();
-                    if (port->CheckCollision(playerBoat.getPosition(), 2.0f)) {
-                        Vector3 dir = Vector3Normalize(Vector3Subtract(playerBoat.getPosition(), port->GetPosition()));
-                        Vector3 newPos = playerBoat.getPosition();
-                        newPos.x += dir.x * 0.5f; // Empujón
-                        newPos.z += dir.z * 0.5f;
-                        playerBoat.BounceBack(dir); 
-                    }
-
+                playerBoat.Update(true);              
+                playerBoat.ResolvePortCollision(gameWorld.GetPort());
+                
                 FishingSpot* spot = gameWorld.GetNearbySpot(playerBoat.getPosition());
                 if (spot != nullptr && IsKeyPressed(KEY_E)) { // Pescar
                     currentState = STATE_FISHING;
@@ -119,7 +112,10 @@ int main() {
                 FishingSpot* spot = gameWorld.GetNearbySpot(playerBoat.getPosition());
                 if (spot) DrawText("E - PESCAR", 600, 600, 20, WHITE);
                 if (gameWorld.GetPort()->IsPlayerInside(playerBoat.getPosition())) { // Detectar puerto
-                    DrawText("ESTAS EN EL PUERTO", 400, 100, 20, GREEN);
+                    DrawText("ESTAS EN EL PUERTO", 600, 200, 20, GREEN);
+                }
+                if (gameWorld.GetPort()->IsPlayerInsideDock(playerBoat.getPosition())) { // Muelle
+                    DrawText("PRESIONA 'E' PARA ATRACAR", 500, 100, 20, WHITE);
                 }
             }
             else if (currentState == STATE_FISHING) {

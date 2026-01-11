@@ -260,10 +260,21 @@ void Boat::DrawUI(Camera3D camera) {
     inventory.Draw(); // Dibujar el inventario
 }
 
+void Boat::ResolvePortCollision(Port* port) {
+    if (port->CheckCollision(position, 2.0f)) {
+        
+        Vector3 islandPos = port->GetPosition();
+        Vector3 dir = Vector3Normalize(Vector3Subtract(position, islandPos));
+        
+        BounceBack(dir);
+    }
+}
+
 void Boat::BounceBack(Vector3 direction) {
-    position.x += direction.x * 1.0f; // Empujar fuerte fuera
-    position.z += direction.z * 1.0f;
-    speed = -speed * 0.5f; // Rebotar velocidad (efecto choque)
+    position.x += direction.x * 0.8f; 
+    position.z += direction.z * 0.8f;
+    
+    speed = -speed * 0.5f; 
 }
 
 Vector3 Boat::getPosition() {

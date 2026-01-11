@@ -1,10 +1,21 @@
 #include "Port.h"
 #include "raymath.h"
+#include <cmath>
 
 Port::Port(Vector3 pos) : storage(8, 6) {
     position = pos;
-    dockRadius = 25.0f;
-    collisionRadius = 10.0f; 
+    islandRadius = 10.0f;      
+    interactionRadius = 8.0f;
+    dockRadius = 20.0f;
+    collisionRadius = 10.0f;
+    dockPosition = { position.x, 0.0f, position.z + 10.0f };
+}
+
+bool Port::IsPlayerInsideDock(Vector3 playerPos) {
+    Vector3 ringPos = { position.x, 0.0f, position.z + 15.0f };
+    
+    float dist = Vector2Distance((Vector2){ringPos.x, ringPos.z}, (Vector2){playerPos.x, playerPos.z});
+    return dist < interactionRadius;
 }
 
 bool Port::IsPlayerInside(Vector3 playerPos) {
@@ -12,10 +23,24 @@ bool Port::IsPlayerInside(Vector3 playerPos) {
 }
 
 bool Port::CheckCollision(Vector3 playerPos, float playerRadius) {
-    float dist = Vector2Distance((Vector2){position.x, position.z}, (Vector2){playerPos.x, playerPos.z});
-    
-    // Si la distancia es menor que la suma de radios, hay choque
-    return dist < (collisionRadius + playerRadius);
+    // Colisión con la Isla (Círculo) 
+    float distToIsland = Vector2Distance((Vector2){position.x, position.z}, (Vector2){playerPos.x, playerPos.z});
+    if (distToIsland < (collisionRadius + playerRadius)) return true;
+
+    // Colisión con el Muelle 
+    float dockWidth = 1.0f;
+    float dockLength = 8.0f;
+
+    float dx = std::abs(playerPos.x - dockPosition.x);
+    float dz = std::abs(playerPos.z - dockPosition.z);
+
+    // Verificamos si estamos dentro del rectángulo
+    bool hitX = dx < (dockWidth / 2.0f + playerRadius);
+    bool hitZ = dz < (dockLength / 2.0f + playerRadius);
+
+    if (hitX && hitZ) return true; // Chocamos con la madera
+
+    return false;
 }
 
 void Port::Draw() {

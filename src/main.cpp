@@ -3,6 +3,7 @@
 #include "core/GameCamera.h"
 #include "core/FishingMinigame.h"
 #include "core/World.h"
+#include "core/GameRenderer.h"
 #include <raymath.h>
 
 enum GameState {
@@ -28,6 +29,7 @@ int main() {
     World gameWorld;
     gameWorld.Init();
     FishingMinigame minigame;
+    GameRenderer renderer;
     GameState currentState = STATE_NAVIGATING;
 
     while (!WindowShouldClose() && gameRunning) {
@@ -160,6 +162,9 @@ int main() {
         gameWorld.Update(deltaTime, time, playerBoat.getPosition());
 
         // --- DIBUJADO ---
+        renderer.Draw(currentState, playerBoat, gameWorld, gameCamera, minigame);
+
+        /*
         BeginDrawing();
             ClearBackground(BLACK);
             gameWorld.DrawSky();
@@ -216,7 +221,7 @@ int main() {
                 DrawTriangle(mousePos, {mousePos.x, mousePos.y+20}, {mousePos.x+15, mousePos.y+15}, WHITE);
             }
             
-        EndDrawing();
+        EndDrawing();*/
     }
 
     CloseWindow();

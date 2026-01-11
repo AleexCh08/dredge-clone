@@ -69,7 +69,7 @@ int main() {
             gameWorld.DrawSky();
 
             BeginMode3D(gameCamera.getCamera());
-                gameWorld.Draw();
+                gameWorld.Draw(playerBoat.getPosition());
                 playerBoat.Draw();                
 
             EndMode3D();

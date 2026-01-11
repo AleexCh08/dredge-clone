@@ -2,22 +2,27 @@
 #define FISHINGSPOT_H
 
 #include "raylib.h"
+#include <vector>
+
+struct VisualFish {
+    float angle;      // En qué punto del círculo está
+    float speed;      // Qué tan rápido nada
+    float distance;   // Qué tan lejos del centro
+    float depth;      // Profundidad (Y negativo)
+    float scale;      // Tamaño del pez
+    Color color;
+};
 
 class FishingSpot {
 public:
     // Constructor con posición
     FishingSpot(Vector3 pos);
     
-    void Draw();
-    
-    // Retorna true si el barco está dentro del radio de pesca
+    void Draw(Vector3 playerPos);
     bool IsPlayerInside(Vector3 playerPos);
     
-    // Getters
     bool IsActive() const { return active; }
     Vector3 GetPosition() const { return position; }
-    
-    // Desactivar el punto (cuando pescamos todo)
     void Deactivate() { active = false; }
 
 private:
@@ -25,6 +30,8 @@ private:
     bool active;       // ¿Quedan peces?
     float radius;      // Radio de detección del barco
     float bubbleTimer; // Para animación simple
+
+    std::vector<VisualFish> fishes;
 };
 
 #endif

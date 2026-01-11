@@ -1,5 +1,6 @@
 #include "World.h"
 #include "raymath.h"
+#include "rlgl.h"
 #include <cmath> 
 
 World::World() {
@@ -46,11 +47,8 @@ void World::Update(float deltaTime, float time, Vector3 playerPosition) {
     waterModel.transform = MatrixTranslate(playerPosition.x, 0.0f, playerPosition.z);
 }
 
-void World::Draw() {
-    // 1. Dibujar Agua
-    DrawModel(waterModel, (Vector3){0, 0, 0}, 1.0f, (Color){ 0, 121, 241, 255 });
-
-    // 2. Dibujar Montañas (Límites)
+void World::Draw(Vector3 playerPos) {
+    // Dibujar Montañas (Límites)
     int numMountains = 30;
     float mapRadius = 95.0f;
                 
@@ -66,8 +64,15 @@ void World::Draw() {
 
     // Dibujar puntos de pesca
     for (auto &spot : fishingSpots) {
-        spot.Draw();
+        spot.Draw(playerPos);
     }
+
+    // Dibujar Agua
+    BeginBlendMode(BLEND_ALPHA);
+    rlDisableDepthMask();  
+        DrawModel(waterModel, (Vector3){0, 0, 0}, 1.0f, (Color){ 0, 100, 200, 210 });
+    rlEnableDepthMask();
+    EndBlendMode();
 }
 
 void World::DrawSky() {

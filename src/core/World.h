@@ -18,7 +18,7 @@ public:
 
     void Init(); // Cargar modelos y shaders
     void Update(float deltaTime, float time, Vector3 playerPosition);
-    void Draw(); 
+    void Draw(Vector3 playerPos); 
     void DrawSky();
     void Unload(); // Limpieza manual si se requiere
 

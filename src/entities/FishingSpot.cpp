@@ -6,9 +6,29 @@
 FishingSpot::FishingSpot(Vector3 pos) {
     position = pos;
     active = true;
-    radius = 6.0f; // Un radio generoso para que sea fácil atinarle
+    radius = 2.5f; // Un radio generoso para que sea fácil atinarle
     bubbleTimer = 0.0f;
+    respawnTimer = 0.0f;
 
+    // --- INICIALIZAR BURBUJAS ---
+    for(int i=0; i<20; i++) {
+        BubbleParticle b;
+        float angle = GetRandomValue(0, 360) * DEG2RAD;
+        float dist = (GetRandomValue(0, 10) / 10.0f) * 0.5f; 
+        
+        b.position = { 
+            pos.x + cos(angle)*dist, 
+            -GetRandomValue(0, 20)/10.0f, // Altura aleatoria inicial (-2.0 a 0.0)
+            pos.z + sin(angle)*dist 
+        };
+        
+        b.speed = 0.5f + (GetRandomValue(0, 10)/10.0f); // Velocidad variable
+        b.wobbleOffset = GetRandomValue(0, 100) / 10.0f;
+        b.size = 0.05f + (GetRandomValue(0, 5)/100.0f); // Tamaño pequeñito
+        bubbles.push_back(b);
+    }
+
+    // Generar peces visuales
     int numFish = GetRandomValue(3, 6); // Entre 3 y 6 peces por zona
     for(int i = 0; i < numFish; i++) {
         VisualFish f;
@@ -33,6 +53,33 @@ FishingSpot::FishingSpot(Vector3 pos) {
     currentFish.price = 15;
 }
 
+void FishingSpot::Update(float deltaTime) {
+    // LÓGICA DE REGENERACIÓN
+    if (!active) {
+        respawnTimer -= deltaTime;
+        if (respawnTimer <= 0) {
+            active = true; // ¡El spot vuelve a nacer!
+            // Opcional: Podrías cambiar el tipo de pez aquí aleatoriamente
+        }
+        return; 
+    }
+
+    // ANIMACIÓN DE BURBUJAS
+    float time = GetTime();
+    for (auto &b : bubbles) {
+        b.position.y += b.speed * deltaTime;
+        b.position.x += sin(time * 5.0f + b.wobbleOffset) * 0.005f;
+        
+        if (b.position.y > 0.0f) {
+            b.position.y = -2.0f; 
+            float angle = GetRandomValue(0, 360) * DEG2RAD;
+            float dist = (GetRandomValue(0, 10) / 10.0f) * 0.5f;
+            b.position.x = position.x + cos(angle)*dist;
+            b.position.z = position.z + sin(angle)*dist;
+        }
+    }
+}
+
 bool FishingSpot::IsPlayerInside(Vector3 playerPos) {
     if (!active) return false;
 
@@ -48,44 +95,44 @@ bool FishingSpot::IsPlayerInside(Vector3 playerPos) {
 void FishingSpot::Draw(Vector3 playerPos) {
     if (!active) return;
 
-    // --- 1. DIBUJAR BURBUJAS (Igual que antes) ---
-    bubbleTimer += GetFrameTime();
-    float yOffset = sin(bubbleTimer * 3.0f) * 0.2f;
-    DrawCylinder((Vector3){position.x, 0.0f + yOffset, position.z}, 1.5f, 1.5f, 0.15f, 8, Fade(WHITE, 0.25f));
-    DrawCylinderWires((Vector3){position.x, 0.0f, position.z}, radius, radius, 1.0f, 16, Fade(SKYBLUE, 0.3f));
+    // DIBUJAR BURBUJAS  ---
+    rlDisableDepthTest();
+        for (const auto &b : bubbles) {
+            DrawCube(b.position, b.size, b.size, b.size, Fade(WHITE, 0.6f));
+        }
+    rlEnableDepthTest();
 
-    // --- 2. DIBUJAR PECES CON PROFUNDIDAD ---
+    // DIBUJAR PECES CON PROFUNDIDAD ---
     for (auto &fish : fishes) {
-        // A. Actualizar posición (Igual que antes)
+        // Actualizar posición 
         fish.angle += fish.speed * GetFrameTime(); 
         float rad = fish.angle;
         float fishX = position.x + cos(rad) * fish.distance;
         float fishZ = position.z + sin(rad) * fish.distance;
         Vector3 fishPos = { fishX, fish.depth, fishZ };
 
-        // B. CALCULAR DISTANCIA Y VISIBILIDAD (NUEVO)
         float distToPlayer = Vector3Distance(fishPos, playerPos);
         
         float visibility = Remap(distToPlayer, 15.0f, 40.0f, 0.8f, 0.0f);
         
-        // Clamp (Asegurar que esté entre 0 y 1)
         if (visibility < 0.0f) visibility = 0.0f;
         if (visibility > 0.8f) visibility = 0.8f;
 
-        // Si es invisible, no lo dibujamos (ahorra recursos)
+        // Si es invisible, no lo dibujamos
         if (visibility <= 0.01f) continue;
 
-        // C. Dibujar
+        // Dibujar
         rlPushMatrix();
             rlTranslatef(fishX, fish.depth, fishZ);
-            float rotationDegrees = -rad * RAD2DEG; 
-            rlRotatef(rotationDegrees, 0, 1, 0);
-
-            // Usamos Fade() para aplicar la transparencia calculada al color del pez
+            rlRotatef(-rad * RAD2DEG, 0, 1, 0);
             Color finalColor = Fade(fish.color, visibility);
-
             DrawCube(Vector3{0,0,0}, 1.0f * fish.scale, 0.3f * fish.scale, 0.05f * fish.scale, finalColor);
             DrawCube(Vector3{-0.5f * fish.scale, 0, 0}, 0.3f * fish.scale, 0.3f * fish.scale, 0.05f * fish.scale, finalColor);
         rlPopMatrix();
     }
+}
+
+void FishingSpot::Deactivate() {
+    active = false;
+    respawnTimer = RESPAWN_TIME; // Iniciar contador
 }

@@ -10,7 +10,7 @@ World::World() : homePort((Vector3){-40.0f, 0.0f, -40.0f}) {
 }
 
 World::~World() {
-    Unload();
+    //Unload();
 }
 
 void World::Init() {
@@ -25,10 +25,24 @@ void World::Init() {
     ampLoc = GetShaderLocation(waterShader, "amplitude");
     speedLoc = GetShaderLocation(waterShader, "speed");
 
-    // Puntos de pesca de prueba
-    fishingSpots.push_back(FishingSpot((Vector3){ 20.0f, 0.0f, 20.0f }));
-    fishingSpots.push_back(FishingSpot((Vector3){ -30.0f, 0.0f, -10.0f }));
-    fishingSpots.push_back(FishingSpot((Vector3){ 15.0f, 0.0f, -40.0f }));
+    // Generacion aleatoria de puntos de pesca
+    fishingSpots.clear(); 
+    
+    int numberOfSpots = 5; // ¿Cuántas zonas de pesca quieres?
+    float minDist = 30.0f;  // Mínimo 30 metros (lejos del puerto/inicio)
+    float maxDist = 80.0f;  // Máximo 80 metros (antes de chocar con montañas)
+
+    for (int i = 0; i < numberOfSpots; i++) {
+        float angle = (float)GetRandomValue(0, 360);
+        
+        float dist = (float)GetRandomValue((int)minDist, (int)maxDist);
+
+        float x = sin(angle * DEG2RAD) * dist;
+        float z = cos(angle * DEG2RAD) * dist;
+
+        // Crear el spot
+        fishingSpots.push_back(FishingSpot({ x, 0.0f, z }));
+    }
 }
 
 void World::Update(float deltaTime, float time, Vector3 playerPosition) {
@@ -45,6 +59,11 @@ void World::Update(float deltaTime, float time, Vector3 playerPosition) {
 
     // Mover el agua para que siga al jugador (Océano Infinito)
     waterModel.transform = MatrixTranslate(playerPosition.x, 0.0f, playerPosition.z);
+
+    // ACTUALIZAR CADA SPOT
+    for (auto &spot : fishingSpots) {
+        spot.Update(deltaTime); 
+    }
 }
 
 void World::Draw(Vector3 playerPos) {
@@ -65,16 +84,18 @@ void World::Draw(Vector3 playerPos) {
         DrawCylinder((Vector3){x, 7.5f, z}, 0.0f, 4.05f, 7.5f, 4, WHITE);
     }
 
-    // Dibujar puntos de pesca
-    for (auto &spot : fishingSpots) {
-        spot.Draw(playerPos);
-    }
-
     // Dibujar Agua
     BeginBlendMode(BLEND_ALPHA);
     rlDisableDepthMask();  
         DrawModel(waterModel, (Vector3){0, 0, 0}, 1.0f, (Color){ 0, 100, 200, 210 });
     rlEnableDepthMask();
+    EndBlendMode();
+
+    // Dibujar puntos de pesca
+    BeginBlendMode(BLEND_ALPHA);
+        for (auto &spot : fishingSpots) {
+            spot.Draw(playerPos);
+        }
     EndBlendMode();
 }
 

@@ -256,8 +256,6 @@ void Boat::DrawUI(Camera3D camera) {
         
         DrawText(feedbackText, (int)screenPos.x, (int)screenPos.y, 20, Fade(feedbackColor, alpha));
     }
-
-    inventory.Draw(); // Dibujar el inventario
 }
 
 void Boat::ResolvePortCollision(Port* port) {

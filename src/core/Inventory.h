@@ -30,13 +30,13 @@ public:
     void Toggle(); // Abrir/Cerrar con "I"
     
     bool IsOpen() const { return isOpen; }
-
-    // EL ALGORITMO (Lo usaremos pronto)
-    // Verifica si un item cabe en una posición específica (x, y)
     bool CanPlaceItem(int x, int y, int w, int h);
     
-    // Intenta agregar un item automáticamente (busca hueco)
-    bool AddItem(const char* name, int w, int h, Color color);
+    bool AddItem(const char* name, int w, int h, Color color); // Intenta agregar un item automáticamente (busca hueco)
+
+    int GetItemIndexUnderMouse(int offsetX, int offsetY);
+    InventoryItem GetItem(int index);
+    void RemoveItem(int index);
 
 private:
     bool isOpen;

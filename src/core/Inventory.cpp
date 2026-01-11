@@ -116,3 +116,55 @@ void Inventory::Draw(int offsetX, int offsetY) {
     DrawTriangle(v1, v2, v3, WHITE);       
     DrawTriangleLines(v1, v2, v3, BLACK);
 }
+
+// Detectar si el mouse está sobre un ítem
+int Inventory::GetItemIndexUnderMouse(int offsetX, int offsetY) {
+    if (!isOpen) return -1;
+
+    int screenW = GetScreenWidth();
+    int screenH = GetScreenHeight();
+    int totalW = (cols * CELL_SIZE) + (PADDING * 2);
+    int totalH = (rows * CELL_SIZE) + (PADDING * 2);
+    
+    int startX = (offsetX == 0) ? (screenW - totalW) / 2 : offsetX;
+    int startY = (offsetY == 0) ? (screenH - totalH) / 2 : offsetY;
+    int gridStartX = startX + PADDING;
+    int gridStartY = startY + PADDING;
+
+    Vector2 mouse = GetMousePosition();
+
+    // Revisar cada ítem para ver si el mouse está encima
+    for (int i = 0; i < items.size(); i++) {
+        InventoryItem& item = items[i];
+        
+        int itemX = gridStartX + (item.gridX * CELL_SIZE);
+        int itemY = gridStartY + (item.gridY * CELL_SIZE);
+        int itemW = item.width * CELL_SIZE;
+        int itemH = item.height * CELL_SIZE;
+
+        Rectangle rect = { (float)itemX, (float)itemY, (float)itemW, (float)itemH };
+
+        if (CheckCollisionPointRec(mouse, rect)) {
+            return i; // ¡Encontramos el ítem número i!
+        }
+    }
+    return -1; 
+}
+
+InventoryItem Inventory::GetItem(int index) {
+    return items[index];
+}
+
+void Inventory::RemoveItem(int index) {
+    if (index < 0 || index >= items.size()) return;
+
+    InventoryItem item = items[index];
+
+    for (int i = 0; i < item.width; i++) {
+        for (int j = 0; j < item.height; j++) {
+            collisionGrid[item.gridX + i][item.gridY + j] = false;
+        }
+    }
+
+    items.erase(items.begin() + index);
+}

@@ -8,7 +8,9 @@
 enum GameState {
     STATE_NAVIGATING,
     STATE_FISHING,
-    STATE_INVENTORY
+    STATE_INVENTORY,
+    STATE_DOCKED,
+    STATE_STORAGE
 };
 
 bool gameRunning = true;
@@ -51,6 +53,13 @@ int main() {
                     EnableCursor(); 
                     HideCursor(); 
                 }
+                if (gameWorld.GetPort()->IsPlayerInsideDock(playerBoat.getPosition())) {  // Entrar al muelle            
+                    if (IsKeyPressed(KEY_E)) {
+                        currentState = STATE_DOCKED;
+                        EnableCursor(); 
+                        HideCursor(); 
+                    }
+                }
                 if (IsKeyPressed(KEY_ESCAPE)) { // Salir del juego
                     gameRunning = false; 
                 }
@@ -88,9 +97,64 @@ int main() {
                     DisableCursor();
                 }
             } break;
+
+            case STATE_DOCKED:
+            {
+                if (IsKeyPressed(KEY_ONE)) {
+                    currentState = STATE_STORAGE;
+                    if (!playerBoat.GetInventory()->IsOpen()) playerBoat.GetInventory()->Toggle();
+                    gameWorld.GetPort()->GetStorage()->Toggle(); 
+                }
+                
+                if (IsKeyPressed(KEY_TWO)) {
+                    // Pescadero (Futura fase)
+                }
+
+                if (IsKeyPressed(KEY_Q) || IsKeyPressed(KEY_ESCAPE)) {
+                    currentState = STATE_NAVIGATING;
+                    DisableCursor(); 
+                }
+            } break;
+
+            case STATE_STORAGE:
+            {
+                Inventory* boatInv = playerBoat.GetInventory();
+                Inventory* portInv = gameWorld.GetPort()->GetStorage();
+
+                int boatX = 100; 
+                int boatY = 200;
+                int portX = 800; 
+                int portY = 200;
+
+                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+                    int itemIdx = boatInv->GetItemIndexUnderMouse(boatX, boatY);
+                    if (itemIdx != -1) {
+                        InventoryItem item = boatInv->GetItem(itemIdx);
+                        if (portInv->AddItem(item.name.c_str(), item.width, item.height, item.color)) {
+                            boatInv->RemoveItem(itemIdx);
+                        }
+                    }
+
+                    int itemIdxPort = portInv->GetItemIndexUnderMouse(portX, portY);
+                    if (itemIdxPort != -1) {
+                        InventoryItem item = portInv->GetItem(itemIdxPort);
+                        if (boatInv->AddItem(item.name.c_str(), item.width, item.height, item.color)) {
+                            portInv->RemoveItem(itemIdxPort);
+                        }
+                    }
+                }
+
+                if (IsKeyPressed(KEY_TAB) || IsKeyPressed(KEY_ESCAPE)) {
+                    currentState = STATE_DOCKED;
+                    if (boatInv->IsOpen()) boatInv->Toggle();
+                    if (portInv->IsOpen()) portInv->Toggle(); 
+                }
+            } break;
         }
         
-        if (currentState != STATE_INVENTORY && currentState != STATE_FISHING) {
+        if (currentState != STATE_INVENTORY && currentState != STATE_FISHING 
+            && currentState != STATE_DOCKED && currentState != STATE_STORAGE) 
+        {
             gameCamera.Update(playerBoat.getPosition());
         }
         gameWorld.Update(deltaTime, time, playerBoat.getPosition());
@@ -124,6 +188,32 @@ int main() {
             else if (currentState == STATE_INVENTORY) {
                 DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, 0.5f));
                 playerBoat.GetInventory()->Draw(); 
+            }
+            else if (currentState == STATE_DOCKED) {
+                DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, 0.8f));
+                DrawText("PUERTO - MUELLE PRINCIPAL", 450, 200, 40, WHITE);
+                
+                DrawText("1. ALMACEN (GUARDAR OBJETOS)", 500, 400, 20, WHITE);
+                DrawText("2. PESCADERO (CERRADO)", 500, 450, 20, GRAY);
+                DrawText("Q. SALPAR (SALIR)", 500, 600, 20, RED);
+
+                Vector2 mousePos = GetMousePosition();
+                DrawTriangle(mousePos, {mousePos.x, mousePos.y+20}, {mousePos.x+15, mousePos.y+15}, WHITE);
+            }
+            else if (currentState == STATE_STORAGE) {
+                DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, 0.85f));
+                
+                DrawText("CARGA DEL BARCO", 100, 150, 20, YELLOW);
+                DrawText("ALMACEN DEL PUERTO", 800, 150, 20, GREEN);
+
+                playerBoat.GetInventory()->Draw(100, 200); 
+                gameWorld.GetPort()->GetStorage()->Draw(800, 200);
+
+                DrawText("CLICK IZQUIERDO para transferir objetos", 450, 800, 20, LIGHTGRAY);
+                DrawText("TAB / ESC para Volver", 50, 50, 20, WHITE);
+
+                Vector2 mousePos = GetMousePosition();
+                DrawTriangle(mousePos, {mousePos.x, mousePos.y+20}, {mousePos.x+15, mousePos.y+15}, WHITE);
             }
             
         EndDrawing();

@@ -10,7 +10,7 @@ World::World() : homePort((Vector3){-40.0f, 0.0f, -40.0f}) {
 }
 
 World::~World() {
-    //Unload();
+    Unload();
 }
 
 void World::Init() {

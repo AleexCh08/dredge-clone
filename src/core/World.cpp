@@ -31,7 +31,33 @@ void World::Init() {
     int numberOfSpots = 5; // ¿Cuántas zonas de pesca quieres?
     float minDist = 30.0f;  // Mínimo 30 metros (lejos del puerto/inicio)
     float maxDist = 80.0f;  // Máximo 80 metros (antes de chocar con montañas)
+    int spotsCreated = 0;
+    int maxAttempts = 100; // Evitar bucle infinito
+    int attempts = 0;
 
+    while (spotsCreated < numberOfSpots && attempts < maxAttempts) {
+        attempts++;
+        
+        float angle = (float)GetRandomValue(0, 360);
+        float dist = (float)GetRandomValue((int)minDist, (int)maxDist);
+        float x = sin(angle * DEG2RAD) * dist;
+        float z = cos(angle * DEG2RAD) * dist;
+        Vector3 candidatePos = { x, 0.0f, z };
+
+        // VERIFICACIÓN DE SEGURIDAD:
+        // Calculamos distancia al puerto
+        float distToPort = Vector3Distance(candidatePos, homePort.GetPosition());
+
+        // Si está muy cerca del puerto lo descartamos
+        if (distToPort < 20.0f) {
+            continue; // Intentar de nuevo
+        }
+
+        fishingSpots.push_back(FishingSpot(candidatePos));
+        spotsCreated++;
+    }
+
+    /*
     for (int i = 0; i < numberOfSpots; i++) {
         float angle = (float)GetRandomValue(0, 360);
         
@@ -42,7 +68,7 @@ void World::Init() {
 
         // Crear el spot
         fishingSpots.push_back(FishingSpot({ x, 0.0f, z }));
-    }
+    }*/
 }
 
 void World::Update(float deltaTime, float time, Vector3 playerPosition) {

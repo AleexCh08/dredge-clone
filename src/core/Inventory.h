@@ -6,8 +6,8 @@
 #include <string>
 
 // Configuración de la Grilla (El "Tablero")
-#define INV_COLS 6
-#define INV_ROWS 4
+#define MAX_INV_COLS 12
+#define MAX_INV_ROWS 10
 #define CELL_SIZE 60 
 #define PADDING 10
 
@@ -23,10 +23,10 @@ struct InventoryItem {
 
 class Inventory {
 public:
-    Inventory();
+    Inventory(int cols = 6, int rows = 4);
     
     void Update();
-    void Draw();
+    void Draw(int offsetX = 0, int offsetY = 0);
     void Toggle(); // Abrir/Cerrar con "I"
     
     bool IsOpen() const { return isOpen; }
@@ -40,9 +40,11 @@ public:
 
 private:
     bool isOpen;
+    int cols; 
+    int rows;
     
     // MATRIZ LÓGICA: true = ocupado, false = libre
-    bool collisionGrid[INV_COLS][INV_ROWS];
+    bool collisionGrid[MAX_INV_COLS][MAX_INV_ROWS];
     
     // LISTA VISUAL: Los objetos que tenemos
     std::vector<InventoryItem> items;

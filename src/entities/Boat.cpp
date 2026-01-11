@@ -260,6 +260,12 @@ void Boat::DrawUI(Camera3D camera) {
     inventory.Draw(); // Dibujar el inventario
 }
 
+void Boat::BounceBack(Vector3 direction) {
+    position.x += direction.x * 1.0f; // Empujar fuerte fuera
+    position.z += direction.z * 1.0f;
+    speed = -speed * 0.5f; // Rebotar velocidad (efecto choque)
+}
+
 Vector3 Boat::getPosition() {
     return position;
 }

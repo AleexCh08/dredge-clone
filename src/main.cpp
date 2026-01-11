@@ -37,6 +37,15 @@ int main() {
             case STATE_NAVIGATING:
             {
                 playerBoat.Update(true);
+                Port* port = gameWorld.GetPort();
+                    if (port->CheckCollision(playerBoat.getPosition(), 2.0f)) {
+                        Vector3 dir = Vector3Normalize(Vector3Subtract(playerBoat.getPosition(), port->GetPosition()));
+                        Vector3 newPos = playerBoat.getPosition();
+                        newPos.x += dir.x * 0.5f; // Empujón
+                        newPos.z += dir.z * 0.5f;
+                        playerBoat.BounceBack(dir); 
+                    }
+
                 FishingSpot* spot = gameWorld.GetNearbySpot(playerBoat.getPosition());
                 if (spot != nullptr && IsKeyPressed(KEY_E)) { // Pescar
                     currentState = STATE_FISHING;

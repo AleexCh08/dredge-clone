@@ -26,6 +26,7 @@ public:
 
     void StartFishing(Vector3 targetPos); //  Activa el sedal
     void StopFishing();
+    void BounceBack(Vector3 direction);
 
     void DrawUI(Camera3D camera);
     Vector3 getPosition(); // Para que la cámara nos pueda seguir

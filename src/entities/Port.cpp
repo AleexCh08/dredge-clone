@@ -1,13 +1,21 @@
 #include "Port.h"
 #include "raymath.h"
 
-Port::Port(Vector3 pos) {
+Port::Port(Vector3 pos) : storage(8, 6) {
     position = pos;
-    dockRadius = 15.0f; 
+    dockRadius = 25.0f;
+    collisionRadius = 10.0f; 
 }
 
 bool Port::IsPlayerInside(Vector3 playerPos) {
     return Vector3Distance(playerPos, position) < dockRadius;
+}
+
+bool Port::CheckCollision(Vector3 playerPos, float playerRadius) {
+    float dist = Vector2Distance((Vector2){position.x, position.z}, (Vector2){playerPos.x, playerPos.z});
+    
+    // Si la distancia es menor que la suma de radios, hay choque
+    return dist < (collisionRadius + playerRadius);
 }
 
 void Port::Draw() {
@@ -15,7 +23,6 @@ void Port::Draw() {
     DrawCylinder(position, 10.0f, 12.0f, 2.0f, 8, GREEN);
     
     // 2. El Muelle (Cubo Marrón alargado hacia el agua)
-    // Asumimos que el muelle sale hacia Z positivo por simplicidad
     Vector3 dockPos = { position.x, 1.0f, position.z + 10.0f };
     DrawCube(dockPos, 4.0f, 1.0f, 10.0f, BROWN);
     

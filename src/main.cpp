@@ -165,13 +165,15 @@ int main() {
             {
                 Inventory* boatInv = playerBoat.GetInventory();
                 Inventory* portInv = gameWorld.GetPort()->GetStorage();
+                int boatX = 100; int boatY = 200;
+                int portX = 800; int portY = 200;
 
-                int boatX = 100; 
-                int boatY = 200;
-                int portX = 800; 
-                int portY = 200;
-
-                if (IsKeyPressed(KEY_R)) {
+                if (isDragging && IsKeyPressed(KEY_R)) {
+                    int temp = draggedItem.width;
+                    draggedItem.width = draggedItem.height;
+                    draggedItem.height = temp;
+                }
+                else if (!isDragging && IsKeyPressed(KEY_R)) {
                     int idxBoat = boatInv->GetItemIndexUnderMouse(boatX, boatY);
                     if (idxBoat != -1) boatInv->TryRotateItem(idxBoat);
 
@@ -179,32 +181,84 @@ int main() {
                     if (idxPort != -1) portInv->TryRotateItem(idxPort);
                 }
 
-                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-                    int itemIdx = boatInv->GetItemIndexUnderMouse(boatX, boatY);
-                    if (itemIdx != -1) {
-                        InventoryItem item = boatInv->GetItem(itemIdx);
+                if (!isDragging && IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
+                    int idxBoat = boatInv->GetItemIndexUnderMouse(boatX, boatY);
+                    if (idxBoat != -1) {
+                        InventoryItem item = boatInv->GetItem(idxBoat);
                         if (portInv->AddItem(item.name.c_str(), item.width, item.height, item.color)) {
-                            boatInv->RemoveItem(itemIdx);
+                            boatInv->RemoveItem(idxBoat);
                         } else {
                             playerBoat.ShowFeedback("¡ALMACEN LLENO!", RED);
                         }
                     }
-
-                    int itemIdxPort = portInv->GetItemIndexUnderMouse(portX, portY);
-                    if (itemIdxPort != -1) {
-                        InventoryItem item = portInv->GetItem(itemIdxPort);
+                    int idxPort = portInv->GetItemIndexUnderMouse(portX, portY);
+                    if (idxPort != -1) {
+                        InventoryItem item = portInv->GetItem(idxPort);
                         if (boatInv->AddItem(item.name.c_str(), item.width, item.height, item.color)) {
-                            portInv->RemoveItem(itemIdxPort);
+                            portInv->RemoveItem(idxPort);
                         } else {
                             playerBoat.ShowFeedback("¡BARCO LLENO!", RED);
                         }
                     }
                 }
 
-                if (IsKeyPressed(KEY_TAB) || IsKeyPressed(KEY_ESCAPE)) {
+                if (!isDragging && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+                    int idxBoat = boatInv->GetItemIndexUnderMouse(boatX, boatY);
+                    if (idxBoat != -1) {
+                        draggedItem = boatInv->GetItem(idxBoat);
+                        draggedItemOriginalIndex = idxBoat;
+                        sourceInventory = boatInv;
+                        isDragging = true;
+                        boatInv->RemoveItem(idxBoat);
+                    } else {
+                        int idxPort = portInv->GetItemIndexUnderMouse(portX, portY);
+                        if (idxPort != -1) {
+                            draggedItem = portInv->GetItem(idxPort);
+                            draggedItemOriginalIndex = idxPort;
+                            sourceInventory = portInv;
+                            isDragging = true;
+                            portInv->RemoveItem(idxPort);
+                        }
+                    }
+                }
+
+                if (isDragging && IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
+                    bool placed = false;              
+                    Vector2 gridPosBoat = boatInv->GetGridCellFromMouse(boatX, boatY);
+                    if (gridPosBoat.x >= 0) { 
+                        if (boatInv->AddItemAt(draggedItem, (int)gridPosBoat.x, (int)gridPosBoat.y)) {
+                            placed = true; 
+                        }
+                    }
+
+                    if (!placed) {
+                        Vector2 gridPosPort = portInv->GetGridCellFromMouse(portX, portY);
+                        if (gridPosPort.x >= 0) {
+                            if (portInv->AddItemAt(draggedItem, (int)gridPosPort.x, (int)gridPosPort.y)) {
+                                placed = true;
+                            }
+                        }
+                    }
+
+                    if (!placed) {
+                        if (sourceInventory != nullptr) {
+                            if (!sourceInventory->AddItemAt(draggedItem, draggedItemOriginalIndex % 6, draggedItemOriginalIndex / 6)) {
+                                if(!sourceInventory->AddItemAt(draggedItem, draggedItem.gridX, draggedItem.gridY)){
+                                    int temp = draggedItem.width; draggedItem.width = draggedItem.height; draggedItem.height = temp;
+                                    sourceInventory->AddItemAt(draggedItem, draggedItem.gridX, draggedItem.gridY);
+                                }
+                            }
+                        }
+                        playerBoat.ShowFeedback("¡NO CABE!", RED);
+                    }
+
+                    isDragging = false;
+                    sourceInventory = nullptr;
+                }
+
+                if (!isDragging && (IsKeyPressed(KEY_TAB) || IsKeyPressed(KEY_ESCAPE))) {
                     currentState = STATE_DOCKED;
                     if (boatInv->IsOpen()) boatInv->Toggle();
-                    if (portInv->IsOpen()) portInv->Toggle(); 
                 }
             } break;
         }

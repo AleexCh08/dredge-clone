@@ -278,3 +278,14 @@ void Boat::BounceBack(Vector3 direction) {
 Vector3 Boat::getPosition() {
     return position;
 }
+
+void Boat::ShowFeedback(const char* text, Color color) {
+    showFeedback = true;
+    feedbackTimer = 2.0f;
+    feedbackText = text;
+    
+    feedbackPos = position;
+    feedbackPos.y += 2.0f; 
+    
+    feedbackColor = color;
+}

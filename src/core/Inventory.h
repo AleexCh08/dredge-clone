@@ -39,6 +39,10 @@ public:
     void RemoveItem(int index);
     bool TryRotateItem(int index); // Rotar un objeto en el inventario
 
+    // Drag and drop
+    Vector2 GetGridCellFromMouse(int offsetX, int offsetY);
+    bool AddItemAt(InventoryItem item, int x, int y);
+
 private:
     bool isOpen;
     int cols; 

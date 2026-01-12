@@ -2,7 +2,7 @@
 
 GameRenderer::GameRenderer() { }
 
-void GameRenderer::Draw(GameState currentState, Boat& boat, World& world, GameCamera& camera, FishingMinigame& minigame) {
+void GameRenderer::Draw(GameState currentState, Boat& boat, World& world, GameCamera& camera, FishingMinigame& minigame, bool isDragging, InventoryItem draggedItem) {
     BeginDrawing();
         ClearBackground(BLACK);
         world.DrawSky();
@@ -19,6 +19,12 @@ void GameRenderer::Draw(GameState currentState, Boat& boat, World& world, GameCa
             case STATE_DOCKED:     DrawUI_Docked(); break;
             case STATE_STORAGE:    DrawUI_Storage(boat, world); break;
         }
+
+        if (isDragging) {
+        Vector2 mouse = GetMousePosition();
+        DrawRectangle(mouse.x, mouse.y, draggedItem.width * CELL_SIZE, draggedItem.height * CELL_SIZE, Fade(draggedItem.color, 0.8f));
+        DrawRectangleLines(mouse.x, mouse.y, draggedItem.width * CELL_SIZE, draggedItem.height * CELL_SIZE, WHITE);
+    }
 
     EndDrawing();
 }

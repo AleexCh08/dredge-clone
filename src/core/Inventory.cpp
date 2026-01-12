@@ -202,3 +202,43 @@ bool Inventory::TryRotateItem(int index) {
         return false;
     }
 }
+
+Vector2 Inventory::GetGridCellFromMouse(int offsetX, int offsetY) {
+    if (!isOpen) return (Vector2){-1, -1};
+
+    int screenW = GetScreenWidth();
+    int screenH = GetScreenHeight();
+    int totalW = (cols * CELL_SIZE) + (PADDING * 2);
+    int totalH = (rows * CELL_SIZE) + (PADDING * 2);
+    int startX = (offsetX == 0) ? (screenW - totalW) / 2 : offsetX;
+    int startY = (offsetY == 0) ? (screenH - totalH) / 2 : offsetY;
+    int gridStartX = startX + PADDING;
+    int gridStartY = startY + PADDING;
+
+    Vector2 mouse = GetMousePosition();
+
+    if (mouse.x < gridStartX || mouse.x > gridStartX + (cols * CELL_SIZE)) return (Vector2){-1, -1};
+    if (mouse.y < gridStartY || mouse.y > gridStartY + (rows * CELL_SIZE)) return (Vector2){-1, -1};
+
+    int gridX = (int)(mouse.x - gridStartX) / CELL_SIZE;
+    int gridY = (int)(mouse.y - gridStartY) / CELL_SIZE;
+
+    return (Vector2){ (float)gridX, (float)gridY };
+}
+
+bool Inventory::AddItemAt(InventoryItem item, int x, int y) {
+    if (CanPlaceItem(x, y, item.width, item.height)) {
+        
+        item.gridX = x;
+        item.gridY = y;
+        items.push_back(item);
+
+        for (int i = 0; i < item.width; i++) {
+            for (int j = 0; j < item.height; j++) {
+                collisionGrid[x + i][y + j] = true;
+            }
+        }
+        return true;
+    }
+    return false;
+}

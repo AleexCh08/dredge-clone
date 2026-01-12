@@ -17,7 +17,9 @@ public:
         Boat& boat, 
         World& world, 
         GameCamera& camera, 
-        FishingMinigame& minigame
+        FishingMinigame& minigame, 
+        bool isDragging, 
+        InventoryItem draggedItem
     );
 
 private:

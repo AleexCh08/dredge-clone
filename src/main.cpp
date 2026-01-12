@@ -185,6 +185,8 @@ int main() {
                         InventoryItem item = boatInv->GetItem(itemIdx);
                         if (portInv->AddItem(item.name.c_str(), item.width, item.height, item.color)) {
                             boatInv->RemoveItem(itemIdx);
+                        } else {
+                            playerBoat.ShowFeedback("¡ALMACEN LLENO!", RED);
                         }
                     }
 
@@ -193,6 +195,8 @@ int main() {
                         InventoryItem item = portInv->GetItem(itemIdxPort);
                         if (boatInv->AddItem(item.name.c_str(), item.width, item.height, item.color)) {
                             portInv->RemoveItem(itemIdxPort);
+                        } else {
+                            playerBoat.ShowFeedback("¡BARCO LLENO!", RED);
                         }
                     }
                 }

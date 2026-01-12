@@ -31,6 +31,7 @@ private:
     void DrawUI_Storage(Boat& boat, World& world);
     
     void DrawCustomCursor();
+    void DrawTooltip(Inventory* inv, int offsetX, int offsetY);
 };
 
 #endif

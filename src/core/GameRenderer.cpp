@@ -55,6 +55,7 @@ void GameRenderer::DrawUI_Fishing(FishingMinigame& minigame) {
 void GameRenderer::DrawUI_Inventory(Boat& boat) {
     DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, 0.5f));
     boat.GetInventory()->Draw();
+    DrawTooltip(boat.GetInventory(), 0, 0);
     DrawCustomCursor(); 
 }
 
@@ -78,6 +79,9 @@ void GameRenderer::DrawUI_Storage(Boat& boat, World& world) {
     boat.GetInventory()->Draw(100, 200); 
     world.GetPort()->GetStorage()->Draw(800, 200);
 
+    DrawTooltip(boat.GetInventory(), 100, 200);
+    DrawTooltip(world.GetPort()->GetStorage(), 800, 200);
+
     DrawText("CLICK IZQUIERDO para transferir objetos", 450, 800, 20, LIGHTGRAY);
     DrawText("TAB / ESC para Volver", 50, 50, 20, WHITE);
 
@@ -87,4 +91,23 @@ void GameRenderer::DrawUI_Storage(Boat& boat, World& world) {
 void GameRenderer::DrawCustomCursor() {
     Vector2 mousePos = GetMousePosition();
     DrawTriangle(mousePos, {mousePos.x, mousePos.y+20}, {mousePos.x+15, mousePos.y+15}, WHITE);
+}
+
+void GameRenderer::DrawTooltip(Inventory* inv, int offsetX, int offsetY) {
+    int idx = inv->GetItemIndexUnderMouse(offsetX, offsetY);
+    
+    if (idx != -1) {
+        InventoryItem item = inv->GetItem(idx);
+        Vector2 mouse = GetMousePosition();
+        
+        const char* text = TextFormat("%s (%dx%d)", item.name.c_str(), item.width, item.height);
+        int textWidth = MeasureText(text, 20);
+        
+        int boxX = mouse.x + 15;
+        int boxY = mouse.y + 15;
+        
+        DrawRectangle(boxX, boxY, textWidth + 20, 30, DARKGRAY);
+        DrawRectangleLines(boxX, boxY, textWidth + 20, 30, WHITE);
+        DrawText(text, boxX + 10, boxY + 5, 20, WHITE);
+    }
 }

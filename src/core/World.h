@@ -18,7 +18,7 @@ public:
     ~World(); // Destructor 
 
     void Init(); // Cargar modelos y shaders
-    void Update(float deltaTime, float time, Vector3 playerPosition);
+    void Update(float deltaTime, float time, Vector3 playerPosition, bool boatLightOn);
     void Draw(Vector3 playerPos); 
     void DrawSky();
     void Unload(); // Limpieza manual si se requiere
@@ -39,6 +39,13 @@ private:
     int freqLoc;
     int ampLoc;
     int speedLoc;
+
+    int viewPosLoc;     // Posición del barco
+    int nightFactorLoc; // Cuánto oscurecer
+    int lightRadiusLoc; // Radio de la linterna
+
+    float lightRadius;
+
     std::vector<FishingSpot> fishingSpots; // Lista de puntos de pesca 
     
     float timeOfDay; // 0.0f a 24.0f

@@ -18,7 +18,7 @@ int main() {
     InitWindow(1440, 900, "Dredge Clone"); 
     SetExitKey(KEY_NULL);
     DisableCursor(); 
-    ToggleFullscreen();
+    //ToggleFullscreen();
     SetTargetFPS(60);
 
     Boat playerBoat;
@@ -37,7 +37,10 @@ int main() {
         switch (currentState) {
             case STATE_NAVIGATING:
             {
-                playerBoat.Update(true);              
+                playerBoat.Update(true); 
+                if (IsKeyPressed(KEY_F)) { // Toggle de luz
+                    playerBoat.ToggleLight();
+                }             
                 playerBoat.ResolvePortCollision(gameWorld.GetPort());
                 
                 FishingSpot* spot = gameWorld.GetNearbySpot(playerBoat.getPosition());
@@ -268,7 +271,7 @@ int main() {
         {
             gameCamera.Update(playerBoat.getPosition());
         }
-        gameWorld.Update(deltaTime, time, playerBoat.getPosition());
+        gameWorld.Update(deltaTime, time, playerBoat.getPosition(), playerBoat.IsLightOn());
 
         // DIBUJADO
         renderer.Draw(currentState, playerBoat, gameWorld, gameCamera, minigame, isDragging, draggedItem);       

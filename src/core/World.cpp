@@ -18,13 +18,21 @@ void World::Init() {
     Mesh waterMesh = GenMeshPlane(300.0f, 300.0f, 50, 50);
     waterModel = LoadModelFromMesh(waterMesh);
 
-    waterShader = LoadShader("assets/shaders/water.vs", 0);
+    waterShader = LoadShader("assets/shaders/water.vs", "assets/shaders/water.fs");
     waterModel.materials[0].shader = waterShader;
-    
+    waterModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].color = (Color){ 0, 100, 200, 255 };
+    waterShader.locs[SHADER_LOC_COLOR_DIFFUSE] = GetShaderLocation(waterShader, "colDiffuse");
+  
     timeLoc = GetShaderLocation(waterShader, "time");
     freqLoc = GetShaderLocation(waterShader, "frequency");
     ampLoc = GetShaderLocation(waterShader, "amplitude");
     speedLoc = GetShaderLocation(waterShader, "speed");
+
+    viewPosLoc = GetShaderLocation(waterShader, "viewPos");
+    nightFactorLoc = GetShaderLocation(waterShader, "nightFactor");
+    lightRadiusLoc = GetShaderLocation(waterShader, "lightRadius");
+
+    lightRadius = 20.0f;
 
     // Generacion aleatoria de puntos de pesca
     fishingSpots.clear(); 
@@ -59,15 +67,41 @@ void World::Init() {
     }
 }
 
-void World::Update(float deltaTime, float time, Vector3 playerPosition) {
+void World::Update(float deltaTime, float time, Vector3 playerPosition, bool boatLightOn) {
     // Reloj global
     timeOfDay += deltaTime * TIME_SPEED;
     if (timeOfDay >= 24.0f) {
         timeOfDay = 0.0f; // Nuevo día
     }
+    float nightFactor = 0.0f;
+    
+    // Transición atardecer (18:00 a 19:00)
+    if (timeOfDay >= 18.0f && timeOfDay < 19.0f) {
+        nightFactor = (timeOfDay - 18.0f); 
+    }
+    // Noche cerrada (19:00 a 05:00)
+    else if (IsNight()) {
+        nightFactor = 1.0f; 
+    }
+    // Amanecer (05:00 a 06:00)
+    else if (timeOfDay >= 5.0f && timeOfDay < 6.0f) {
+        nightFactor = 1.0f - (timeOfDay - 5.0f);
+    }
 
     // Actualizar Shader con el tiempo global
     SetShaderValue(waterShader, timeLoc, &time, SHADER_UNIFORM_FLOAT);
+
+    float currentRadius = -20.0f;
+    if (nightFactor < 0.1f) {
+        currentRadius = 1000.0f;
+    } 
+    else if (boatLightOn) {
+        currentRadius = 8.0f; // Luz encendida
+    } 
+
+    SetShaderValue(waterShader, viewPosLoc, &playerPosition, SHADER_UNIFORM_VEC3);
+    SetShaderValue(waterShader, nightFactorLoc, &nightFactor, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(waterShader, lightRadiusLoc, &currentRadius, SHADER_UNIFORM_FLOAT);
 
     float freq = WaterConstants::frequency;
     float amp = WaterConstants::amplitude;
@@ -87,12 +121,22 @@ void World::Update(float deltaTime, float time, Vector3 playerPosition) {
 }
 
 void World::Draw(Vector3 playerPos) {
+    Color worldTint = WHITE;
+    if (IsNight()) {
+        worldTint = (Color){ 50, 50, 80, 255 }; // Oscuridad azulada
+    } else if (timeOfDay >= 18.0f && timeOfDay < 19.0f) {
+        // Transición simple
+        worldTint = (Color){ 150, 100, 100, 255 }; // Atardecer rojizo
+    }
+
     // Dibujar puerto
-    homePort.Draw();
+    homePort.Draw(worldTint);
 
     // Dibujar Montañas (Límites)
     int numMountains = 30;
     float mapRadius = 95.0f;
+    Color mountainColor = IsNight() ? (Color){ 20, 20, 20, 255 } : DARKGRAY;
+    Color snowColor = IsNight() ? (Color){ 80, 80, 100, 255 } : WHITE;
                 
     for (int i = 0; i < numMountains; i++) {
         float angle = (360.0f / numMountains) * i * DEG2RAD;
@@ -100,14 +144,14 @@ void World::Draw(Vector3 playerPos) {
         float z = cos(angle) * mapRadius;
         
         // Montaña 
-        DrawCylinder((Vector3){x, 0, z}, 0.0f, 8.0f, 15.0f, 4, DARKGRAY);  
-        DrawCylinder((Vector3){x, 7.5f, z}, 0.0f, 4.05f, 7.5f, 4, WHITE);
+        DrawCylinder((Vector3){x, 0, z}, 0.0f, 8.0f, 15.0f, 4, mountainColor);  
+        DrawCylinder((Vector3){x, 7.5f, z}, 0.0f, 4.05f, 7.5f, 4, snowColor);
     }
 
     // Dibujar Agua
     BeginBlendMode(BLEND_ALPHA);
     rlDisableDepthMask();  
-        DrawModel(waterModel, (Vector3){0, 0, 0}, 1.0f, (Color){ 0, 100, 200, 210 });
+        DrawModel(waterModel, (Vector3){0, 0, 0}, 1.0f, WHITE);
     rlEnableDepthMask();
     EndBlendMode();
 

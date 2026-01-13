@@ -43,17 +43,25 @@ bool Port::CheckCollision(Vector3 playerPos, float playerRadius) {
     return false;
 }
 
-void Port::Draw() {
+void Port::Draw(Color tint) {
+    Color grassColor = GREEN;
+    Color woodColor = BROWN;
+    Color houseColor = BEIGE;
+    if (tint.r < 255) { // Si hay tinte nocturno
+        grassColor = ColorTint(GREEN, tint);
+        woodColor = ColorTint(BROWN, tint);
+        houseColor = ColorTint(BEIGE, tint);
+    }
     // 1. La Isla (Cilindro Verde bajo)
-    DrawCylinder(position, 10.0f, 12.0f, 2.0f, 8, GREEN);
+    DrawCylinder(position, 10.0f, 12.0f, 2.0f, 8, grassColor);
     
     // 2. El Muelle (Cubo Marrón alargado hacia el agua)
     Vector3 dockPos = { position.x, 1.0f, position.z + 10.0f };
-    DrawCube(dockPos, 4.0f, 1.0f, 10.0f, BROWN);
+    DrawCube(dockPos, 4.0f, 1.0f, 10.0f, woodColor);
     
     // 3. El Edificio / Tienda (Cubo con techo)
     Vector3 housePos = { position.x, 3.0f, position.z };
-    DrawCube(housePos, 4.0f, 4.0f, 4.0f, BEIGE);
+    DrawCube(housePos, 4.0f, 4.0f, 4.0f, houseColor);
     // Techo rojo
     DrawCylinder((Vector3){housePos.x, 6.0f, housePos.z}, 0.0f, 3.5f, 2.0f, 4, RED);
 

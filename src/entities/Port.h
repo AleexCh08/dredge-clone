@@ -8,7 +8,7 @@ class Port {
 public:
     Port(Vector3 pos);
     
-    void Draw();
+    void Draw(Color tint);
     
     bool IsPlayerInside(Vector3 playerPos);
     bool IsPlayerInsideDock(Vector3 playerPos);

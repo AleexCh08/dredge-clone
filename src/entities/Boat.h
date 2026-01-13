@@ -36,12 +36,16 @@ public:
 
     Inventory* GetInventory() { return &inventory; } // Acceder al inventario
 
+    void ToggleLight() { isLightOn = !isLightOn; } // Luz/linterna
+    bool IsLightOn() const { return isLightOn; }
+
 private:
     Vector3 position;
     float rotation; // En grados
     float speed;
     float rotationSpeed;
     float currentTurnSpeed;
+    bool isLightOn;
     
     // Configuraciones del barco
     const float MAX_SPEED = 10.0f;

@@ -20,6 +20,7 @@ Boat::Boat() {
     isFishingLineActive = false;
     fishingLineTarget = {0,0,0};
     feedbackColor = WHITE;
+    isLightOn = false;
 }
 
 // Reemplaza el antiguo AddFish por este:

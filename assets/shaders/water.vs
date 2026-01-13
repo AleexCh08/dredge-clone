@@ -5,15 +5,17 @@ in vec2 vertexTexCoord;
 in vec3 vertexNormal;
 in vec4 vertexColor;
 
-uniform mat4 mvp;       
-uniform float time; 
+uniform mat4 mvp;
+uniform mat4 matModel;
 
+uniform float time; 
 uniform float frequency;
 uniform float amplitude;
 uniform float speed;
 
 out vec2 fragTexCoord;
 out vec4 fragColor;
+out vec3 fragPosition;
 
 void main()
 {
@@ -22,6 +24,7 @@ void main()
 
     gl_Position = mvp * vec4(p, 1.0);
 
+    fragPosition = vec3(matModel * vec4(p, 1.0));
     fragTexCoord = vertexTexCoord;
     fragColor = vertexColor;
 }

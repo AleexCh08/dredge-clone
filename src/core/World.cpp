@@ -7,6 +7,7 @@ World::World() : homePort((Vector3){-40.0f, 0.0f, -40.0f}) {
     waterModel = { 0 };
     waterShader = { 0 };
     timeLoc = 0;
+    timeOfDay = 8.0f;
 }
 
 World::~World() {
@@ -56,22 +57,15 @@ void World::Init() {
         fishingSpots.push_back(FishingSpot(candidatePos));
         spotsCreated++;
     }
-
-    /*
-    for (int i = 0; i < numberOfSpots; i++) {
-        float angle = (float)GetRandomValue(0, 360);
-        
-        float dist = (float)GetRandomValue((int)minDist, (int)maxDist);
-
-        float x = sin(angle * DEG2RAD) * dist;
-        float z = cos(angle * DEG2RAD) * dist;
-
-        // Crear el spot
-        fishingSpots.push_back(FishingSpot({ x, 0.0f, z }));
-    }*/
 }
 
 void World::Update(float deltaTime, float time, Vector3 playerPosition) {
+    // Reloj global
+    timeOfDay += deltaTime * TIME_SPEED;
+    if (timeOfDay >= 24.0f) {
+        timeOfDay = 0.0f; // Nuevo día
+    }
+
     // Actualizar Shader con el tiempo global
     SetShaderValue(waterShader, timeLoc, &time, SHADER_UNIFORM_FLOAT);
 
@@ -126,10 +120,30 @@ void World::Draw(Vector3 playerPos) {
 }
 
 void World::DrawSky() {
-    Color topColor = (Color){ 65, 105, 225, 255 }; 
-    Color bottomColor = (Color){ 135, 206, 250, 255 };
+    // Colores base
+    Color dayTop = (Color){ 65, 105, 225, 255 };    // Azul Real
+    Color dayBottom = (Color){ 135, 206, 250, 255 }; // Azul Cielo
+    
+    Color nightTop = (Color){ 10, 10, 30, 255 };     // Casi negro
+    Color nightBottom = (Color){ 25, 25, 112, 255 }; // Azul Medianoche
+
+    // Decidimos qué color usar
+    Color topColor, bottomColor;
+
+    if (IsNight()) {
+        topColor = nightTop;
+        bottomColor = nightBottom;
+    } else {
+        // Opcional: Podríamos hacer un degradado al atardecer, 
+        // pero por ahora cambio brusco para probar.
+        topColor = dayTop;
+        bottomColor = dayBottom;
+    }
     
     DrawRectangleGradientV(0, 0, GetScreenWidth(), GetScreenHeight(), topColor, bottomColor);
+    
+    // UI DEL RELOJ (TEMPORAL para debug)
+    DrawText(TextFormat("%02.0f:00", floor(timeOfDay)), GetScreenWidth() - 100, 20, 30, WHITE);
 }
 
 FishingSpot* World::GetNearbySpot(Vector3 playerPos) {
@@ -139,6 +153,16 @@ FishingSpot* World::GetNearbySpot(Vector3 playerPos) {
         }
     }
     return nullptr; // No hay nada cerca
+}
+
+bool World::IsNight() const {
+    // Consideramos noche desde las 19:00 (7 PM) hasta las 05:00 (6 AM)
+    return (timeOfDay >= 19.0f || timeOfDay < 6.0f);
+}
+
+void World::SkipTime(float hours) {
+    timeOfDay += hours;
+    if (timeOfDay >= 24.0f) timeOfDay -= 24.0f;
 }
 
 void World::Unload() {

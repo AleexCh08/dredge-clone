@@ -4,7 +4,12 @@ GameRenderer::GameRenderer() { }
 
 void GameRenderer::Draw(GameState currentState, Boat& boat, World& world, GameCamera& camera, FishingMinigame& minigame, bool isDragging, InventoryItem draggedItem) {
     BeginDrawing();
-        ClearBackground(BLACK);
+        // ClearBackground(BLACK);
+        if (world.IsNight()) {
+            ClearBackground((Color){ 10, 10, 30, 255 }); // Color nocturno
+        } else {
+            ClearBackground(SKYBLUE);
+        }
         world.DrawSky();
 
         Draw3DScene(boat, world, camera);

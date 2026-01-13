@@ -26,6 +26,10 @@ public:
     Port* GetPort() { return &homePort; }
     FishingSpot* GetNearbySpot(Vector3 playerPos);
 
+    float GetTimeOfDay() const { return timeOfDay; }
+    bool IsNight() const;
+    void SkipTime(float hours);
+
 private:
     Model waterModel;
     Shader waterShader;
@@ -35,7 +39,10 @@ private:
     int freqLoc;
     int ampLoc;
     int speedLoc;
-    std::vector<FishingSpot> fishingSpots; // Lista de puntos de pesca  
+    std::vector<FishingSpot> fishingSpots; // Lista de puntos de pesca 
+    
+    float timeOfDay; // 0.0f a 24.0f
+    const float TIME_SPEED = 0.5f; // 1 segundo real = 0.5 horas juego (Ajusta a tu gusto)
 };
 
 #endif

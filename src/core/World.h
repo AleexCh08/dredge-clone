@@ -6,6 +6,12 @@
 #include "../entities/FishingSpot.h"
 #include "../entities/Port.h"
 
+struct Obstacle {
+    Vector3 position;
+    float radius;
+    bool isVisible; // Para las alucinaciones (aparecen/desaparecen)
+};
+
 struct WaterConstants {
     static constexpr float frequency = 2.0f;
     static constexpr float amplitude = 0.5f;
@@ -23,6 +29,7 @@ public:
     void DrawSky();
     void DrawClock();
     void Unload(); // Limpieza manual si se requiere
+    bool CheckCollisions(class Boat& boat); // Retorna true si hubo choque
     
     Port* GetPort() { return &homePort; }
     FishingSpot* GetNearbySpot(Vector3 playerPos);
@@ -50,6 +57,7 @@ private:
     float lightRadius;
 
     std::vector<FishingSpot> fishingSpots; // Lista de puntos de pesca 
+    std::vector<Obstacle> obstacles; // Lista de obstaculos
     
     float timeOfDay; // 0.0f a 24.0f
     float currentNightFactor;

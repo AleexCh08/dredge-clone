@@ -7,7 +7,8 @@ enum GameState {
     STATE_FISHING,
     STATE_INVENTORY,
     STATE_DOCKED,
-    STATE_STORAGE
+    STATE_STORAGE,
+    STATE_GAMEOVER
 };
 
 #endif

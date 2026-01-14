@@ -1,7 +1,8 @@
 #include "World.h"
 #include "raymath.h"
 #include "rlgl.h"
-#include <cmath> 
+#include <cmath>
+#include "entities/Boat.h"
 
 World::World() : homePort((Vector3){-40.0f, 0.0f, -40.0f}) {
     waterModel = { 0 };
@@ -39,6 +40,25 @@ void World::Init() {
     lightRadiusLoc = GetShaderLocation(waterShader, "lightRadius");
 
     lightRadius = 20.0f;
+
+    // Generacion de montañas
+    obstacles.clear();
+    int numMountains = 30;
+    float mapRadius = 95.0f; // El radio donde están las montañas
+
+    for (int i = 0; i < numMountains; i++) {
+        float angle = (360.0f / numMountains) * i * DEG2RAD;
+        float x = sin(angle) * mapRadius;
+        float z = cos(angle) * mapRadius;
+        
+        // Guardamos el obstáculo
+        Obstacle obs;
+        obs.position = { x, 0.0f, z };
+        obs.radius = 8.0f; // Radio aproximado de la base de la montaña
+        obs.isVisible = true;
+        
+        obstacles.push_back(obs);
+    }
 
     // Generacion aleatoria de puntos de pesca
     fishingSpots.clear(); 
@@ -150,19 +170,14 @@ void World::Draw(Vector3 playerPos) {
         homePort.Draw(worldTint);
 
         // Dibujar Montañas (Límites)
-        int numMountains = 30;
-        float mapRadius = 95.0f;
         Color mountainColor = IsNight() ? (Color){ 20, 20, 20, 255 } : DARKGRAY;
         Color snowColor = IsNight() ? (Color){ 80, 80, 100, 255 } : WHITE;
                     
-        for (int i = 0; i < numMountains; i++) {
-            float angle = (360.0f / numMountains) * i * DEG2RAD;
-            float x = sin(angle) * mapRadius;
-            float z = cos(angle) * mapRadius;
-            
-            // Montaña 
-            DrawCylinder((Vector3){x, 0, z}, 0.0f, 8.0f, 15.0f, 4, mountainColor);  
-            DrawCylinder((Vector3){x, 7.5f, z}, 0.0f, 4.05f, 7.5f, 4, snowColor);
+        for (const auto& obs : obstacles) {
+            if (!obs.isVisible) continue;
+ 
+            DrawCylinder(obs.position, 0.0f, obs.radius, 15.0f, 6, mountainColor);  
+            DrawCylinder((Vector3){obs.position.x, 7.7f, obs.position.z}, 0.0f, obs.radius * 0.5f, 7.5f, 6, snowColor);
         }
     EndShaderMode();
 
@@ -243,6 +258,32 @@ void World::DrawClock() {
     int minute = (int)((timeOfDay - (float)hour) * 60.0f);
     
     DrawText(TextFormat("%02d:%02d", hour, minute), GetScreenWidth() - 110, 20, 30, WHITE);
+}
+
+bool World::CheckCollisions(Boat& boat) {
+    Vector3 boatPos = boat.getPosition();
+    float boatSpeed = fabs(boat.GetSpeed()); // Velocidad absoluta
+
+    for (const auto& obs : obstacles) {
+        if (!obs.isVisible) continue;
+
+        float dist = Vector2Distance({boatPos.x, boatPos.z}, {obs.position.x, obs.position.z});
+        
+        if (dist < (obs.radius + 2.0f)) {
+            
+            if (boatSpeed > 5.0f) {
+                boat.TakeDamage(1); 
+            } else {
+                // Choque suave: Solo empujamos el barco hacia atrás sin quitar vida
+                // Usamos BounceBack (puedes hacerlo público en Boat o replicar la lógica aquí)
+                 // Como BounceBack es privado, usaremos un truco: TakeDamage(0) 
+                 // o hacemos BounceBack público. Por ahora, hagamos BounceBack PÚBLICO.
+                 boat.TakeDamage(0); 
+            }
+            return true;
+        }
+    }
+    return false;
 }
 
 void World::Unload() {

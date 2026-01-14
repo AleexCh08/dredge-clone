@@ -5,7 +5,7 @@ GameRenderer::GameRenderer() { }
 void GameRenderer::Draw(GameState currentState, Boat& boat, World& world, GameCamera& camera, FishingMinigame& minigame, bool isDragging, InventoryItem draggedItem) {
     BeginDrawing();
         if (world.IsNight()) {
-            ClearBackground((Color){ 10, 10, 30, 255 }); // Color nocturno
+            ClearBackground((Color){ 10, 10, 30, 255 });
         } else {
             ClearBackground(SKYBLUE);
         }
@@ -30,6 +30,12 @@ void GameRenderer::Draw(GameState currentState, Boat& boat, World& world, GameCa
             Vector2 mouse = GetMousePosition();
             DrawRectangle(mouse.x, mouse.y, draggedItem.width * CELL_SIZE, draggedItem.height * CELL_SIZE, Fade(draggedItem.color, 0.8f));
             DrawRectangleLines(mouse.x, mouse.y, draggedItem.width * CELL_SIZE, draggedItem.height * CELL_SIZE, WHITE);
+        }
+
+        if (currentState == STATE_GAMEOVER) {
+            DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, 0.8f));
+            DrawText("EL MAR TE HA RECLAMADO", GetScreenWidth()/2 - 200, GetScreenHeight()/2 - 20, 40, RED);
+            DrawText("Presiona ESC para salir", GetScreenWidth()/2 - 150, GetScreenHeight()/2 + 40, 20, GRAY);
         }
 
     EndDrawing();

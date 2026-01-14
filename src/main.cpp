@@ -37,7 +37,13 @@ int main() {
         switch (currentState) {
             case STATE_NAVIGATING:
             {
-                playerBoat.Update(true); 
+                playerBoat.Update(true);
+                gameWorld.CheckCollisions(playerBoat);
+                
+                if (playerBoat.IsDead()) {
+                    currentState = STATE_GAMEOVER;
+                    EnableCursor(); 
+                }
                 if (IsKeyPressed(KEY_F)) { // Toggle de luz
                     playerBoat.ToggleLight();
                 }             
@@ -264,10 +270,17 @@ int main() {
                     if (boatInv->IsOpen()) boatInv->Toggle();
                 }
             } break;
+            case STATE_GAMEOVER:
+            {                
+                if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_ESCAPE)) {
+                    gameRunning = false;
+                }
+            } break;
         }
         
         if (currentState != STATE_INVENTORY && currentState != STATE_FISHING 
-            && currentState != STATE_DOCKED && currentState != STATE_STORAGE) 
+            && currentState != STATE_DOCKED && currentState != STATE_STORAGE
+            && currentState != STATE_GAMEOVER) 
         {
             gameCamera.Update(playerBoat.getPosition());
         }

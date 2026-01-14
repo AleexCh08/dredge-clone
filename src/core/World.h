@@ -21,6 +21,7 @@ public:
     void Update(float deltaTime, float time, Vector3 playerPosition, bool boatLightOn);
     void Draw(Vector3 playerPos); 
     void DrawSky();
+    void DrawClock();
     void Unload(); // Limpieza manual si se requiere
     
     Port* GetPort() { return &homePort; }
@@ -52,7 +53,7 @@ private:
     
     float timeOfDay; // 0.0f a 24.0f
     float currentNightFactor;
-    const float TIME_SPEED = 0.5f; // 1 segundo real = 0.5 horas juego (Ajusta a tu gusto)
+    const float TIME_SPEED = 1.0f / 12.0f; // 1 hora de juego = 12 segundos reales (Ajusta a tu gusto)
 };
 
 #endif

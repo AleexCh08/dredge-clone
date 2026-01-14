@@ -186,12 +186,8 @@ void World::DrawSky() {
     Color nightBot = (Color){ 20, 30, 60, 255 };     // Azul oscuro
 
     Color finalTop, finalBot;
-
-    // 2. Mezclar según el factor de noche (currentNightFactor va de 0.0 a 1.0)
-    
+ 
     if (currentNightFactor < 0.5f) {
-        // FASE 1: De DÍA a ATARDECER (0.0 a 0.5)
-        // Re-escalamos el factor para que vaya de 0 a 1 en este tramo
         float t = currentNightFactor * 2.0f; 
         
         finalTop = (Color){
@@ -205,8 +201,6 @@ void World::DrawSky() {
             (unsigned char)Lerp(dayBot.b, duskBot.b, t), 255
         };
     } else {
-        // FASE 2: De ATARDECER a NOCHE (0.5 a 1.0)
-        // Re-escalamos factor (0.5->0.0, 1.0->1.0)
         float t = (currentNightFactor - 0.5f) * 2.0f;
 
         finalTop = (Color){
@@ -223,8 +217,6 @@ void World::DrawSky() {
 
     DrawRectangleGradientV(0, 0, GetScreenWidth(), GetScreenHeight(), finalTop, finalBot);
     
-    // Debug hora
-    DrawText(TextFormat("%02.0f:00", floor(timeOfDay)), GetScreenWidth() - 100, 20, 30, WHITE);
 }
 
 FishingSpot* World::GetNearbySpot(Vector3 playerPos) {
@@ -244,6 +236,13 @@ bool World::IsNight() const {
 void World::SkipTime(float hours) {
     timeOfDay += hours;
     if (timeOfDay >= 24.0f) timeOfDay -= 24.0f;
+}
+
+void World::DrawClock() {
+    int hour = (int)timeOfDay;
+    int minute = (int)((timeOfDay - (float)hour) * 60.0f);
+    
+    DrawText(TextFormat("%02d:%02d", hour, minute), GetScreenWidth() - 110, 20, 30, WHITE);
 }
 
 void World::Unload() {

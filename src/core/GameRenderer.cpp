@@ -4,7 +4,6 @@ GameRenderer::GameRenderer() { }
 
 void GameRenderer::Draw(GameState currentState, Boat& boat, World& world, GameCamera& camera, FishingMinigame& minigame, bool isDragging, InventoryItem draggedItem) {
     BeginDrawing();
-        // ClearBackground(BLACK);
         if (world.IsNight()) {
             ClearBackground((Color){ 10, 10, 30, 255 }); // Color nocturno
         } else {
@@ -17,6 +16,8 @@ void GameRenderer::Draw(GameState currentState, Boat& boat, World& world, GameCa
         DrawFPS(10, 10);
         boat.DrawUI(camera.getCamera());
 
+        world.DrawClock();
+
         switch (currentState) {
             case STATE_NAVIGATING: DrawUI_Navigating(boat, world); break;
             case STATE_FISHING:    DrawUI_Fishing(minigame); break;
@@ -26,10 +27,10 @@ void GameRenderer::Draw(GameState currentState, Boat& boat, World& world, GameCa
         }
 
         if (isDragging) {
-        Vector2 mouse = GetMousePosition();
-        DrawRectangle(mouse.x, mouse.y, draggedItem.width * CELL_SIZE, draggedItem.height * CELL_SIZE, Fade(draggedItem.color, 0.8f));
-        DrawRectangleLines(mouse.x, mouse.y, draggedItem.width * CELL_SIZE, draggedItem.height * CELL_SIZE, WHITE);
-    }
+            Vector2 mouse = GetMousePosition();
+            DrawRectangle(mouse.x, mouse.y, draggedItem.width * CELL_SIZE, draggedItem.height * CELL_SIZE, Fade(draggedItem.color, 0.8f));
+            DrawRectangleLines(mouse.x, mouse.y, draggedItem.width * CELL_SIZE, draggedItem.height * CELL_SIZE, WHITE);
+        }
 
     EndDrawing();
 }

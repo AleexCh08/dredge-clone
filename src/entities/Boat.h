@@ -39,6 +39,11 @@ public:
     void ToggleLight() { isLightOn = !isLightOn; } // Luz/linterna
     bool IsLightOn() const { return isLightOn; }
 
+    int GetHealth() const { return currentHealth; }
+    void TakeDamage(int amount);
+    bool IsDead() const { return currentHealth <= 0; }
+    float GetSpeed() const { return speed; }
+
 private:
     Vector3 position;
     float rotation; // En grados
@@ -73,6 +78,10 @@ private:
     Color feedbackColor;
 
     Inventory inventory; // Nuevo objeto inventario
+
+    int maxHealth = 3;
+    int currentHealth;
+    float invulnerabilityTimer;
 
     const float MAP_LIMIT = 90.0f; // El radio máximo donde puedes navegar
     void CheckMapBounds();

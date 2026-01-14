@@ -21,6 +21,8 @@ Boat::Boat() {
     fishingLineTarget = {0,0,0};
     feedbackColor = WHITE;
     isLightOn = false;
+    currentHealth = maxHealth;
+    invulnerabilityTimer = 0.0f;
 }
 
 // Reemplaza el antiguo AddFish por este:
@@ -89,10 +91,10 @@ void Boat::CheckMapBounds() {
 }
 
 void Boat::Update(bool inputEnabled) {
-    /* Control del Inventario
-    if (IsKeyPressed(KEY_I)) {
-        inventory.Toggle();
-    }*/
+    // Reducir temporizador de invulnerabilidad
+    if (invulnerabilityTimer > 0.0f) {
+        invulnerabilityTimer -= GetFrameTime();
+    }
 
     // INPUT DEL USUARIO
     // Rotación (A / D) CON INERCIA
@@ -250,6 +252,13 @@ void Boat::Draw() {
 }
 
 void Boat::DrawUI(Camera3D camera) {
+    // Dibujar Corazones (Vida)
+    for (int i = 0; i < maxHealth; i++) {
+        Color heartColor = (i < currentHealth) ? RED : DARKGRAY; // Rojo si tiene vida, gris si la perdió
+        DrawCircle(30 + (i * 40), GetScreenHeight() - 40, 15, heartColor);
+        DrawCircleLines(30 + (i * 40), GetScreenHeight() - 40, 15, WHITE);
+    }
+
     if (showFeedback) {
         Vector2 screenPos = GetWorldToScreen(feedbackPos, camera);    
         float alpha = feedbackTimer / 2.0f; 
@@ -289,4 +298,16 @@ void Boat::ShowFeedback(const char* text, Color color) {
     feedbackPos.y += 2.0f; 
     
     feedbackColor = color;
+}
+
+void Boat::TakeDamage(int amount) {
+    if (invulnerabilityTimer > 0.0f) return; // Si somos invulnerables, ignorar
+
+    currentHealth -= amount;
+    if (currentHealth < 0) currentHealth = 0;
+
+    ShowFeedback("¡DAÑO EN EL CASCO!", RED);
+    invulnerabilityTimer = 2.0f;
+    
+    speed = -speed * 0.5f; 
 }

@@ -271,7 +271,12 @@ int main() {
         {
             gameCamera.Update(playerBoat.getPosition());
         }
-        gameWorld.Update(deltaTime, time, playerBoat.getPosition(), playerBoat.IsLightOn());
+
+        float worldDt = deltaTime;
+        if (currentState == STATE_DOCKED || currentState == STATE_STORAGE) {
+            worldDt = 0.0f;
+        }
+        gameWorld.Update(worldDt, time, playerBoat.getPosition(), playerBoat.IsLightOn());
 
         // DIBUJADO
         renderer.Draw(currentState, playerBoat, gameWorld, gameCamera, minigame, isDragging, draggedItem);       

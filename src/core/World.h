@@ -33,13 +33,15 @@ public:
 private:
     Model waterModel;
     Shader waterShader;
+    Shader worldShader;
     Port homePort;
 
-    int timeLoc; // Ubicación de la variable 'time' en el shader
-    int freqLoc;
-    int ampLoc;
-    int speedLoc;
+    // Shaders
+    int worldViewPosLoc, worldNightFactorLoc, worldLightRadiusLoc;
 
+    int timeLoc; int freqLoc; int ampLoc;
+    
+    int speedLoc;
     int viewPosLoc;     // Posición del barco
     int nightFactorLoc; // Cuánto oscurecer
     int lightRadiusLoc; // Radio de la linterna
@@ -49,6 +51,7 @@ private:
     std::vector<FishingSpot> fishingSpots; // Lista de puntos de pesca 
     
     float timeOfDay; // 0.0f a 24.0f
+    float currentNightFactor;
     const float TIME_SPEED = 0.5f; // 1 segundo real = 0.5 horas juego (Ajusta a tu gusto)
 };
 

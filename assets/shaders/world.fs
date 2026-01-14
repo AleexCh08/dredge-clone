@@ -28,5 +28,13 @@ void main()
     vec3 nightResult = mix(nightAmbient, lampColor, lightIntensity);
     vec3 finalRGB = mix(objectColor, nightResult, nightFactor);
 
+    vec3 fogColor = vec3(0.02, 0.02, 0.05); 
+    float fogFactor = smoothstep(20.0, 80.0, dist); 
+
+    float fogStrength = mix(0.0, 1.0, nightFactor);
+    fogFactor *= fogStrength;
+    fogFactor = clamp(fogFactor - lightIntensity, 0.0, 1.0);
+    finalRGB = mix(finalRGB, fogColor, fogFactor);
+
     finalColor = vec4(finalRGB, texelColor.a * colDiffuse.a);
 }

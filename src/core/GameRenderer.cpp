@@ -77,6 +77,8 @@ void GameRenderer::DrawUI_Docked() {
     
     DrawText("1. ALMACEN (GUARDAR OBJETOS)", 500, 400, 20, WHITE);
     DrawText("2. PESCADERO (CERRADO)", 500, 450, 20, GRAY);
+    DrawText("Z: DORMIR (MANTENER)", 500, 500, 20, WHITE);
+    DrawText("R: REPARAR EL CASCO", 500, 550, 20, WHITE);            
     DrawText("Q. SALPAR (SALIR)", 500, 600, 20, RED);
 
     DrawCustomCursor();

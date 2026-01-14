@@ -56,6 +56,8 @@ void World::Init() {
         obs.position = { x, 0.0f, z };
         obs.radius = 8.0f; // Radio aproximado de la base de la montaña
         obs.isVisible = true;
+        obs.isHallucination = false;
+        obs.lifetime = -1.0f;
         
         obstacles.push_back(obs);
     }
@@ -264,26 +266,72 @@ bool World::CheckCollisions(Boat& boat) {
     Vector3 boatPos = boat.getPosition();
     float boatSpeed = fabs(boat.GetSpeed()); // Velocidad absoluta
 
-    for (const auto& obs : obstacles) {
+    for (auto& obs : obstacles) {
         if (!obs.isVisible) continue;
 
         float dist = Vector2Distance({boatPos.x, boatPos.z}, {obs.position.x, obs.position.z});
         
         if (dist < (obs.radius + 2.0f)) {
+            if (obs.isHallucination) {
+                obs.lifetime = 0.0f; 
+            }
             
             if (boatSpeed > 5.0f) {
                 boat.TakeDamage(1); 
             } else {
-                // Choque suave: Solo empujamos el barco hacia atrás sin quitar vida
-                // Usamos BounceBack (puedes hacerlo público en Boat o replicar la lógica aquí)
-                 // Como BounceBack es privado, usaremos un truco: TakeDamage(0) 
-                 // o hacemos BounceBack público. Por ahora, hagamos BounceBack PÚBLICO.
-                 boat.TakeDamage(0); 
+                boat.TakeDamage(0); 
             }
             return true;
         }
     }
     return false;
+}
+
+void World::UpdateHallucinations(float deltaTime, float panicLevel, Vector3 playerPos, Vector3 playerForward) {
+    CleanupObstacles();
+
+    if (panicLevel < 50.0f) return;
+
+    float chance = (panicLevel - 50.0f) * 0.001f; 
+    
+    if (GetRandomValue(0, 1000) < (chance * 100.0f)) {   
+        Obstacle rock; // GENERAR ROCA FANTASMA
+        
+        // Aparece frente al jugador a cierta distancia (entre 15 y 30 metros)
+        float spawnDist = (float)GetRandomValue(15, 30);
+        float offsetSide = (float)GetRandomValue(-5, 5);
+        
+        Vector3 right = { playerForward.z, 0.0f, -playerForward.x };
+        
+        rock.position = Vector3Add(playerPos, Vector3Scale(playerForward, spawnDist));
+        rock.position = Vector3Add(rock.position, Vector3Scale(right, offsetSide));
+
+        float distToPort = Vector3Distance(rock.position, homePort.GetPosition());
+        if (distToPort < 50.0f) { 
+            return; 
+        }
+        
+        rock.radius = (float)GetRandomValue(2, 4); // Rocas más pequeñas
+        rock.isVisible = true;
+        rock.isHallucination = true;
+        rock.lifetime = 10.0f; // Duran 10 segundos y desaparecen
+        
+        obstacles.push_back(rock);
+    }
+}
+
+void World::CleanupObstacles() {
+    // Recorremos y borramos las que se vencieron
+    for (auto it = obstacles.begin(); it != obstacles.end(); ) {
+        if (it->isHallucination) {
+            it->lifetime -= GetFrameTime(); // Restamos tiempo
+            if (it->lifetime <= 0.0f) {
+                it = obstacles.erase(it); // Borrar y avanzar iterador
+                continue;
+            }
+        }
+        ++it;
+    }
 }
 
 void World::Unload() {

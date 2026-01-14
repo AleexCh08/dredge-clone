@@ -10,6 +10,9 @@ struct Obstacle {
     Vector3 position;
     float radius;
     bool isVisible; // Para las alucinaciones (aparecen/desaparecen)
+
+    bool isHallucination; // ¿Es real o fake?
+    float lifetime;
 };
 
 struct WaterConstants {
@@ -37,6 +40,9 @@ public:
     float GetTimeOfDay() const { return timeOfDay; }
     bool IsNight() const;
     void SkipTime(float hours);
+
+    void UpdateHallucinations(float deltaTime, float panicLevel, Vector3 playerPos, Vector3 playerForward); // Mostrar alucinaciones
+    void CleanupObstacles();
 
 private:
     Model waterModel;

@@ -78,14 +78,11 @@ void Boat::CheckMapBounds() {
     // Si nos pasamos del límite...
     if (distance > MAP_LIMIT) {
         // Empujamos el barco de regreso hacia el centro
-        // Normalizamos el vector de posición para saber la dirección de retorno
         Vector3 directionToCenter = Vector3Normalize(Vector3Scale(position, -1.0f));
-        
-        // Empuje correctivo
+    
         position.x += directionToCenter.x * 0.5f;
         position.z += directionToCenter.z * 0.5f;
         
-        // Matamos la velocidad para que se sienta el "choque"
         speed *= 0.5f; 
     }
 }
@@ -211,10 +208,8 @@ void Boat::Draw() {
     float waveSpeed = 2.0f;
 
     for (const auto &p : wakeTrail) {
-        // Calculamos la altura de la ola en la posición DE LA PARTÍCULA (p.position.x)
         float waveHeight = sin(p.position.x * frequency + time * waveSpeed) * amplitude;
         
-        // La dibujamos justo encima de la ola (+0.1f para evitar parpadeo)
         Vector3 drawPos = p.position;
         drawPos.y = waveHeight + 0.1f;
 
@@ -224,11 +219,10 @@ void Boat::Draw() {
     // Dibujar el cuerpo del barco
     rlPushMatrix();
         rlTranslatef(position.x, position.y, position.z);
-        rlRotatef(rotation, 0, 1, 0); // Rotar sobre el eje Y
+        rlRotatef(rotation, 0, 1, 0); 
         rlRotatef(pitchAngle, 1, 0, 0);
         rlRotatef(tiltAngle, 0, 0, 1);
 
-        // El barco (Un cubo rojo alargado por ahora)
         DrawCube((Vector3){0, 0.5f, 0}, 1.0f, 1.0f, 2.0f, RED);
         DrawCubeWires((Vector3){0, 0.5f, 0}, 1.0f, 1.0f, 2.0f, MAROON);
         DrawCube((Vector3){0, 1.0f, 0.5f}, 0.8f, 0.8f, 0.8f, DARKGRAY);
@@ -266,6 +260,44 @@ void Boat::DrawUI(Camera3D camera) {
         
         DrawText(feedbackText, (int)screenPos.x, (int)screenPos.y, 20, Fade(feedbackColor, alpha));
     }
+
+    // DIBUJAR DINERO
+    DrawText(TextFormat("$%d", cash), 20, GetScreenHeight() - 100, 30, GREEN);
+
+    // DIBUJAR EL OJO 
+    float centerX = GetScreenWidth() / 2.0f;
+    float topY = 40.0f;
+    float eyeWidth = 30.0f;
+    float maxEyeHeight = 15.0f;
+    
+    float openFactor = panicLevel / 100.0f; // 0.0 a 1.0
+
+    Color skinColor = (Color){ 200, 180, 160, 255 }; 
+    if (panicLevel > 80.0f) skinColor = (Color){ 220, 100, 100, 255 }; 
+
+    DrawEllipse(centerX, topY, eyeWidth, maxEyeHeight, skinColor);
+
+    if (openFactor > 0.05f) {
+        float currentHeight = maxEyeHeight * openFactor;
+        DrawEllipse(centerX, topY, eyeWidth, currentHeight, RAYWHITE);
+        
+        float shakeX = (panicLevel > 70) ? (float)GetRandomValue(-2, 2) : 0.0f;
+        float shakeY = (panicLevel > 70) ? (float)GetRandomValue(-2, 2) : 0.0f;
+        
+        float pupilSize = 6.0f * openFactor; 
+        if(pupilSize < 2.0f) pupilSize = 2.0f;
+        
+        DrawCircle(centerX + shakeX, topY + shakeY, pupilSize, BLACK);
+    } else {
+        DrawLineEx(
+            (Vector2){centerX - eyeWidth, topY}, 
+            (Vector2){centerX + eyeWidth, topY}, 
+            3.0f, 
+            BLACK
+        );
+    }
+
+    DrawEllipseLines(centerX, topY, eyeWidth, maxEyeHeight, BLACK);
 }
 
 void Boat::ResolvePortCollision(Port* port) {
@@ -310,4 +342,38 @@ void Boat::TakeDamage(int amount) {
     invulnerabilityTimer = 2.0f;
     
     speed = -speed * 0.5f; 
+}
+
+void Boat::UpdatePanic(bool isNight, bool isSafe, float deltaTime) {
+    if (isNight && !isSafe) {
+        float increase = isLightOn ? (PANIC_INCREASE_RATE * 0.5f) : PANIC_INCREASE_RATE;
+        panicLevel += increase * deltaTime;
+    }
+
+    if (panicLevel > 100.0f) panicLevel = 100.0f;
+}
+
+void Boat::Rest(float amount) {
+    panicLevel -= amount;
+    if (panicLevel < 0.0f) panicLevel = 0.0f;
+}
+
+Vector3 Boat::GetForward() const {
+    float rotRad = rotation * DEG2RAD;
+    return (Vector3){ sinf(rotRad), 0.0f, cosf(rotRad) };
+}
+
+void Boat::TryRepair() {
+    if (currentHealth >= maxHealth) {
+        ShowFeedback("¡CASCO INTACTO!", GREEN);
+        return;
+    }
+
+    if (cash >= REPAIR_COST) {
+        cash -= REPAIR_COST;
+        currentHealth++;
+        ShowFeedback("¡REPARADO!", GREEN);
+    } else {
+        ShowFeedback("¡FALTA DINERO!", RED);
+    }
 }

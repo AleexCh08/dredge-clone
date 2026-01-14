@@ -34,6 +34,9 @@ public:
     void DrawUI(Camera3D camera);
     Vector3 getPosition(); // Para que la cámara nos pueda seguir
 
+    float GetRotation() const { return rotation; }
+    Vector3 GetForward() const;
+
     Inventory* GetInventory() { return &inventory; } // Acceder al inventario
 
     void ToggleLight() { isLightOn = !isLightOn; } // Luz/linterna
@@ -43,6 +46,15 @@ public:
     void TakeDamage(int amount);
     bool IsDead() const { return currentHealth <= 0; }
     float GetSpeed() const { return speed; }
+
+    float GetPanic() const { return panicLevel; }
+    void UpdatePanic(bool isNight, bool isSafe, float deltaTime);
+    void Rest(float amount);
+
+    // Sistema de reparacion
+    void AddMoney(int amount) { cash += amount; }
+    int GetMoney() const { return cash; }
+    void TryRepair();
 
 private:
     Vector3 position;
@@ -83,6 +95,12 @@ private:
     int currentHealth;
     float invulnerabilityTimer;
 
+    float panicLevel = 0.0f; // 0.0 (Calmado) a 100.0 (Locura)
+    const float PANIC_INCREASE_RATE = 2.0f; // Sube 2 puntos por segundo
+
+    int cash = 100; // Dinero inicial (para pruebas)
+    const int REPAIR_COST = 30; // Costo por corazón
+    
     const float MAP_LIMIT = 90.0f; // El radio máximo donde puedes navegar
     void CheckMapBounds();
     void BounceBack(Vector3 direction);

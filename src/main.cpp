@@ -32,12 +32,15 @@ int main() {
     while (!WindowShouldClose() && gameRunning) {
         float deltaTime = GetFrameTime();
         float time = GetTime();
+        bool isSafe = (currentState == STATE_DOCKED || currentState == STATE_STORAGE);
 
         // --- LOGICA ---
         switch (currentState) {
             case STATE_NAVIGATING:
             {
                 playerBoat.Update(true);
+                playerBoat.UpdatePanic(gameWorld.IsNight(), false, deltaTime);          
+                gameWorld.UpdateHallucinations(deltaTime, playerBoat.GetPanic(), playerBoat.getPosition(), playerBoat.GetForward());
                 gameWorld.CheckCollisions(playerBoat);
                 
                 if (playerBoat.IsDead()) {
@@ -167,6 +170,16 @@ int main() {
                 if (IsKeyPressed(KEY_Q) || IsKeyPressed(KEY_ESCAPE)) {
                     currentState = STATE_NAVIGATING;
                     DisableCursor(); 
+                }
+
+                if (IsKeyPressed(KEY_R)) {
+                    playerBoat.TryRepair();
+                }
+
+                if (IsKeyDown(KEY_Z)) { // Mantener Z para dormir
+                    gameWorld.SkipTime(deltaTime * 3.0f);                     
+                    playerBoat.Rest(20.0f * deltaTime);                     
+                    playerBoat.ShowFeedback("DURMIENDO...", SKYBLUE);
                 }
             } break;
 

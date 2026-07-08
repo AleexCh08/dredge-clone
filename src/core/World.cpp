@@ -39,6 +39,11 @@ void World::Init() {
     nightFactorLoc = GetShaderLocation(waterShader, "nightFactor");
     lightRadiusLoc = GetShaderLocation(waterShader, "lightRadius");
 
+    waterLightDirLoc = GetShaderLocation(waterShader, "lightDir");
+    waterLightCutoffLoc = GetShaderLocation(waterShader, "lightCutoff");
+    worldLightDirLoc = GetShaderLocation(worldShader, "lightDir");
+    worldLightCutoffLoc = GetShaderLocation(worldShader, "lightCutoff");
+
     lightRadius = 20.0f;
 
     // Generacion de montañas
@@ -93,7 +98,7 @@ void World::Init() {
     }
 }
 
-void World::Update(float deltaTime, float time, Vector3 playerPosition, bool boatLightOn) {
+void World::Update(float deltaTime, float time, Vector3 playerPosition, Vector3 playerForward, bool boatLightOn) {
     // Reloj global
     timeOfDay += deltaTime * TIME_SPEED;
     if (timeOfDay >= 24.0f) {
@@ -123,12 +128,16 @@ void World::Update(float deltaTime, float time, Vector3 playerPosition, bool boa
         currentRadius = 1000.0f;
     } 
     else if (boatLightOn) {
-        currentRadius = 8.0f; // Luz encendida
+        currentRadius = 14.0f; // Luz encendida
     } 
+
+    float cutoff = cosf(25.0f * DEG2RAD);
 
     SetShaderValue(waterShader, viewPosLoc, &playerPosition, SHADER_UNIFORM_VEC3);
     SetShaderValue(waterShader, nightFactorLoc, &currentNightFactor, SHADER_UNIFORM_FLOAT);
     SetShaderValue(waterShader, lightRadiusLoc, &currentRadius, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(waterShader, waterLightDirLoc, &playerForward, SHADER_UNIFORM_VEC3);
+    SetShaderValue(waterShader, waterLightCutoffLoc, &cutoff, SHADER_UNIFORM_FLOAT);
 
     float freq = WaterConstants::frequency;
     float amp = WaterConstants::amplitude;
@@ -141,6 +150,8 @@ void World::Update(float deltaTime, float time, Vector3 playerPosition, bool boa
     SetShaderValue(worldShader, worldViewPosLoc, &playerPosition, SHADER_UNIFORM_VEC3);
     SetShaderValue(worldShader, worldNightFactorLoc, &currentNightFactor, SHADER_UNIFORM_FLOAT);
     SetShaderValue(worldShader, worldLightRadiusLoc, &currentRadius, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(worldShader, worldLightDirLoc, &playerForward, SHADER_UNIFORM_VEC3); 
+    SetShaderValue(worldShader, worldLightCutoffLoc, &cutoff, SHADER_UNIFORM_FLOAT);
 
     // Mover el agua para que siga al jugador (Océano Infinito)
     waterModel.transform = MatrixTranslate(playerPosition.x, 0.0f, playerPosition.z);

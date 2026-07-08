@@ -346,11 +346,15 @@ void Boat::TakeDamage(int amount) {
 
 void Boat::UpdatePanic(bool isNight, bool isSafe, float deltaTime) {
     if (isNight && !isSafe) {
-        float increase = isLightOn ? (PANIC_INCREASE_RATE * 0.5f) : PANIC_INCREASE_RATE;
+        float increase = isLightOn ? (PANIC_INCREASE_RATE * 0.3f) : PANIC_INCREASE_RATE;
         panicLevel += increase * deltaTime;
+    } 
+    else if (!isNight) {
+        panicLevel -= (PANIC_INCREASE_RATE * 2.0f) * deltaTime;
     }
 
     if (panicLevel > 100.0f) panicLevel = 100.0f;
+    if (panicLevel < 0.0f) panicLevel = 0.0f;
 }
 
 void Boat::Rest(float amount) {

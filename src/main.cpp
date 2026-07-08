@@ -302,7 +302,7 @@ int main() {
         if (currentState == STATE_DOCKED || currentState == STATE_STORAGE) {
             worldDt = 0.0f;
         }
-        gameWorld.Update(worldDt, time, playerBoat.getPosition(), playerBoat.IsLightOn());
+        gameWorld.Update(worldDt, time, playerBoat.getPosition(), playerBoat.GetForward(), playerBoat.IsLightOn());
 
         // DIBUJADO
         renderer.Draw(currentState, playerBoat, gameWorld, gameCamera, minigame, isDragging, draggedItem);       

@@ -27,7 +27,7 @@ public:
     ~World(); // Destructor 
 
     void Init(); // Cargar modelos y shaders
-    void Update(float deltaTime, float time, Vector3 playerPosition, bool boatLightOn);
+    void Update(float deltaTime, float time, Vector3 playerPosition, Vector3 playerForward, bool boatLightOn);
     void Draw(Vector3 playerPos); 
     void DrawSky();
     void DrawClock();
@@ -59,6 +59,9 @@ private:
     int viewPosLoc;     // Posición del barco
     int nightFactorLoc; // Cuánto oscurecer
     int lightRadiusLoc; // Radio de la linterna
+
+    int waterLightDirLoc, waterLightCutoffLoc;
+    int worldLightDirLoc, worldLightCutoffLoc;
 
     float lightRadius;
 

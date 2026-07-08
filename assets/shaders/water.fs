@@ -11,6 +11,9 @@ uniform vec3 viewPos;
 uniform float nightFactor;
 uniform float lightRadius;
 
+uniform vec3 lightDir;     
+uniform float lightCutoff;
+
 out vec4 finalColor;
 
 void main()
@@ -19,7 +22,12 @@ void main()
     vec3 dayColor = texelColor.rgb * colDiffuse.rgb;
 
     float dist = distance(fragPosition, viewPos);
-    float lightIntensity = 1.0 - smoothstep(lightRadius, lightRadius + 3.0, dist);
+    float distIntensity = 1.0 - smoothstep(lightRadius, lightRadius + 3.0, dist);
+    vec3 fragDir = dist > 0.01 ? normalize(fragPosition - viewPos) : vec3(0.0);
+    float theta = dot(fragDir, normalize(lightDir));
+    float epsilon = 0.05; 
+    float angleIntensity = clamp((theta - lightCutoff) / epsilon, 0.0, 1.0);
+    float lightIntensity = distIntensity * angleIntensity;
 
     vec3 nightAmbient = dayColor * 0.15 + vec3(0.0, 0.02, 0.05); 
     vec3 lampColor = dayColor * 0.6 + vec3(0.1, 0.1, 0.1) * lightIntensity;

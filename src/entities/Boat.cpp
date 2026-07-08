@@ -265,39 +265,40 @@ void Boat::DrawUI(Camera3D camera) {
     DrawText(TextFormat("$%d", cash), 20, GetScreenHeight() - 100, 30, GREEN);
 
     // DIBUJAR EL OJO 
-    float centerX = GetScreenWidth() / 2.0f;
-    float topY = 40.0f;
-    float eyeWidth = 30.0f;
-    float maxEyeHeight = 15.0f;
-    
-    float openFactor = panicLevel / 100.0f; // 0.0 a 1.0
-
-    Color skinColor = (Color){ 200, 180, 160, 255 }; 
-    if (panicLevel > 80.0f) skinColor = (Color){ 220, 100, 100, 255 }; 
-
-    DrawEllipse(centerX, topY, eyeWidth, maxEyeHeight, skinColor);
-
-    if (openFactor > 0.05f) {
-        float currentHeight = maxEyeHeight * openFactor;
-        DrawEllipse(centerX, topY, eyeWidth, currentHeight, RAYWHITE);
+    if (panicLevel > 0.0f) {
+        float centerX = GetScreenWidth() / 2.0f;
+        float topY = 40.0f;
+        float eyeWidth = 30.0f;
+        float maxEyeHeight = 15.0f;
         
-        float shakeX = (panicLevel > 70) ? (float)GetRandomValue(-2, 2) : 0.0f;
-        float shakeY = (panicLevel > 70) ? (float)GetRandomValue(-2, 2) : 0.0f;
-        
-        float pupilSize = 6.0f * openFactor; 
-        if(pupilSize < 2.0f) pupilSize = 2.0f;
-        
-        DrawCircle(centerX + shakeX, topY + shakeY, pupilSize, BLACK);
-    } else {
-        DrawLineEx(
-            (Vector2){centerX - eyeWidth, topY}, 
-            (Vector2){centerX + eyeWidth, topY}, 
-            3.0f, 
-            BLACK
-        );
-    }
+        float openFactor = panicLevel / 100.0f; // 0.0 a 1.0
 
-    DrawEllipseLines(centerX, topY, eyeWidth, maxEyeHeight, BLACK);
+        Color skinColor = (Color){ 200, 180, 160, 255 }; 
+        if (panicLevel > 80.0f) skinColor = (Color){ 220, 100, 100, 255 }; 
+
+        DrawEllipse(centerX, topY, eyeWidth, maxEyeHeight, skinColor);
+
+        if (openFactor > 0.05f) {
+            float currentHeight = maxEyeHeight * openFactor;
+            DrawEllipse(centerX, topY, eyeWidth, currentHeight, RAYWHITE);
+            
+            float shakeX = (panicLevel > 70) ? (float)GetRandomValue(-2, 2) : 0.0f;
+            float shakeY = (panicLevel > 70) ? (float)GetRandomValue(-2, 2) : 0.0f;
+            
+            float pupilSize = 6.0f * openFactor; 
+            if(pupilSize < 2.0f) pupilSize = 2.0f;
+            
+            DrawCircle(centerX + shakeX, topY + shakeY, pupilSize, BLACK);
+        } else {
+            DrawLineEx(
+                (Vector2){centerX - eyeWidth, topY}, 
+                (Vector2){centerX + eyeWidth, topY}, 
+                3.0f, 
+                BLACK
+            );
+        }
+        DrawEllipseLines(centerX, topY, eyeWidth, maxEyeHeight, BLACK);
+    } 
 }
 
 void Boat::ResolvePortCollision(Port* port) {
